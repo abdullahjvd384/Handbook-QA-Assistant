@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Handbook Assistant</title>
+  <link rel="stylesheet" href="/static/vendor/pdfjs-3.11.174/pdf_viewer.min.css">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">N</span>
+      <div>
+        <h1>Handbook Assistant</h1>
+        <p class="sub">Northgate Robotics &middot; answers quoted from the handbook</p>
+      </div>
+    </div>
+    <div class="actions">
+      <span id="status" class="badge" title="Answer mode">connecting&hellip;</span>
+      <button id="btn-docs" class="ghost" type="button">Documents</button>
+      <button id="btn-upload" class="ghost" type="button">Upload</button>
+      <button id="btn-new" class="ghost" type="button">New chat</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="chat" aria-label="Conversation">
+      <div id="messages" class="messages" aria-live="polite">
+        <div id="empty" class="empty">
+          <h2>Ask about policies, runbooks, teams or benefits</h2>
+          <p>Every answer cites the handbook. Click a citation to open the source with the passage highlighted.</p>
+          <div class="suggestions">
+            <button type="button" class="chip">How many days of annual leave do I get?</button>
+            <button type="button" class="chip">How long is the deploy freeze before a release?</button>
+            <button type="button" class="chip">How much paid leave do secondary caregivers get?</button>
+            <button type="button" class="chip">What is the hotel cap per night in Boston?</button>
+            <button type="button" class="chip">Who approves a laptop replacement?</button>
+          </div>
+        </div>
+      </div>
+      <form id="ask-form" class="composer">
+        <textarea id="question" rows="1" placeholder="Ask a question&hellip;" maxlength="2000" required></textarea>
+        <button id="send" type="submit" class="primary">Ask</button>
+      </form>
+    </section>
+
+    <aside id="viewer" class="viewer" aria-label="Source document" hidden>
+      <div class="viewer-head">
+        <div>
+          <h2 id="doc-title"></h2>
+          <p id="doc-meta" class="doc-meta"></p>
+        </div>
+        <div class="viewer-actions">
+          <a id="doc-download" class="ghost small" href="#" download>Original file</a>
+          <button id="viewer-close" class="ghost small" type="button" aria-label="Close document">&times;</button>
+        </div>
+      </div>
+      <div id="doc-notice" class="notice" hidden></div>
+      <div id="doc-tabs" class="doc-tabs" role="tablist" hidden>
+        <button type="button" role="tab" data-view="pdf">Original PDF</button>
+        <button type="button" role="tab" data-view="text">Extracted text</button>
+      </div>
+      <article id="doc-body" class="doc-body"></article>
+      <div id="doc-pdf" class="doc-body doc-pdf" hidden></div>
+    </aside>
+  </main>
+
+  <dialog id="docs-dialog" class="dialog">
+    <div class="dialog-head"><h2>Documents</h2><button class="ghost small" data-close type="button">&times;</button></div>
+    <input id="doc-filter" type="search" placeholder="Filter by title or category">
+    <ul id="doc-list" class="doc-list"></ul>
+  </dialog>
+
+  <dialog id="upload-dialog" class="dialog">
+    <form id="upload-form">
+      <div class="dialog-head"><h2>Upload a document</h2><button class="ghost small" data-close type="button">&times;</button></div>
+      <p class="hint">Markdown, text, CSV, HTML, PDF or Word. It goes through the same ingestion as the handbook and can be asked about straight away.</p>
+      <label>File <input name="file" type="file" required accept=".md,.markdown,.txt,.csv,.html,.htm,.pdf,.docx"></label>
+      <label>Title <input name="title" type="text" maxlength="200" placeholder="Defaults to the file's own title"></label>
+      <div class="row">
+        <label>Category <input name="category" type="text" maxlength="60" placeholder="e.g. HR"></label>
+        <label>Effective date <input name="effective_date" type="date"></label>
+      </div>
+      <label>Supersedes (optional document id) <input name="supersedes" type="text" maxlength="120" placeholder="e.g. hr-leave-policy-v2"></label>
+      <p id="upload-result" class="hint" role="status"></p>
+      <div class="dialog-actions"><button type="submit" class="primary">Upload and index</button></div>
+    </form>
+  </dialog>
+
+  <script src="/static/vendor/pdfjs-3.11.174/pdf.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
