@@ -139,16 +139,15 @@ What the ablation shows:
 
 ## 7. Time spent
 
-<!-- TODO (candidate): fill in your honest hours. Rough split of the work: reading the corpus and
-finding traps; ingestion + lifecycle; search + ablation; answering + verification; web app;
-eval sets + harness; tests; docs. -->
+The work was done in one day (2026-11-14) with Claude Code doing the implementation (see AI_USAGE.md). The hours are wall-clock time from the session log. They include waiting for eval and ablation runs. Because an agent did the coding, these are not comparable to hand-written hours, and they don't split cleanly by component, so they're grouped by phase.
 
-| Part | Hours |
+| Phase | Hours |
 |---|---|
-| Reading the brief and corpus, cataloguing data problems | |
-| Ingestion (6 formats) and lifecycle | |
-| Search and ablation | |
-| Answering (extractive and LLM) and quote verification | |
-| Web app (API and chat page, upload) | |
-| Eval sets and harness | |
-| Tests and docs | |
+| First complete build: brief and corpus read, data problems catalogued, ingestion and lifecycle, hybrid search, extractive answers, web app, eval sets, tests, docs | 0.9 |
+| Testing the app in the browser; LLM mode (OpenAI) and its first eval; reviewing the query flow and chunking choices | 1.0 |
+| Qdrant in Docker; comparing the build with my ChatGPT research | 0.3 |
+| Improvements from that comparison: `bge-small` embeddings, re-tuned fusion, re-ranker ablation, `.env.example` and precision@5, PDF.js viewer; extractive bugs it exposed; final eval on all sets; docs | 2.8 |
+| Preparing the repository and filling in these logs | 0.3 |
+| **Total** | **≈ 5.3** |
+
+ChatGPT research was done alongside the session and not timed separately.
