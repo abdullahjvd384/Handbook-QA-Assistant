@@ -1,0 +1,1011 @@
+{
+  "run_at": "2026-11-14T18:26:45",
+  "as_of": "2026-11-14",
+  "client": "in-process",
+  "question_set": "heldout.jsonl",
+  "modes": [
+    "extractive"
+  ],
+  "summary": {
+    "questions": 25,
+    "answer_accuracy": 1.0,
+    "answerable_accuracy": 1.0,
+    "abstention_accuracy": 1.0,
+    "false_abstention_rate": 0.0,
+    "citation_support": 1.0,
+    "citation_precision": 1.0,
+    "quote_verified": 1.0,
+    "stale_primary_rate": 0.0,
+    "hit@1": 0.9130434782608695,
+    "hit@3": 0.9565217391304348,
+    "hit@5": 0.9565217391304348,
+    "mrr": 0.9347826086956522,
+    "precision@5": 0.45217391304347826,
+    "stale_above_current": 0.0,
+    "latency_p50_ms": 64,
+    "latency_p95_ms": 262,
+    "llm_calls": 0
+  },
+  "by_category": {
+    "conflict-resolution": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "deprecated": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "factual": {
+      "n": 15,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "follow-up": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "future-dated": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 0.0
+    },
+    "multi-hop": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "people": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "unanswerable": {
+      "n": 2,
+      "accuracy": 1.0,
+      "hit@5": null
+    },
+    "versioning": {
+      "n": 2,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    }
+  },
+  "by_format": {
+    "csv": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "docx": {
+      "n": 3,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "md": {
+      "n": 15,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "pdf": {
+      "n": 3,
+      "accuracy": 1.0,
+      "hit@5": 0.6666666666666666
+    },
+    "txt": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    }
+  },
+  "ablation": [
+    {
+      "config": "BM25 only",
+      "hit@1": 0.8260869565217391,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "mrr": 0.9130434782608695,
+      "precision@5": 0.45652173913043476,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.96,
+      "search_ms_p50": 0.8
+    },
+    {
+      "config": "BM25 + thesaurus",
+      "hit@1": 0.8260869565217391,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "mrr": 0.9130434782608695,
+      "precision@5": 0.45652173913043476,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.96,
+      "search_ms_p50": 1.2
+    },
+    {
+      "config": "BM25 + thesaurus + lifecycle",
+      "hit@1": 0.9130434782608695,
+      "hit@3": 0.9565217391304348,
+      "hit@5": 0.9565217391304348,
+      "mrr": 0.9347826086956522,
+      "precision@5": 0.46521739130434786,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.96,
+      "search_ms_p50": 0.8
+    },
+    {
+      "config": "Dense only (model2vec)",
+      "hit@1": 0.782608695652174,
+      "hit@3": 0.9565217391304348,
+      "hit@5": 0.9565217391304348,
+      "mrr": 0.8478260869565217,
+      "precision@5": 0.39999999999999997,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 1.0,
+      "search_ms_p50": 1.1
+    },
+    {
+      "config": "Hybrid RRF (model2vec, w=0.5)",
+      "hit@1": 0.8695652173913043,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "mrr": 0.9275362318840579,
+      "precision@5": 0.39999999999999997,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.96,
+      "search_ms_p50": 1.6
+    },
+    {
+      "config": "Hybrid + lifecycle (model2vec, w=0.5)",
+      "hit@1": 0.9130434782608695,
+      "hit@3": 0.9565217391304348,
+      "hit@5": 0.9565217391304348,
+      "mrr": 0.9347826086956522,
+      "precision@5": 0.41739130434782606,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.96,
+      "search_ms_p50": 1.8
+    },
+    {
+      "config": "Dense only (bge-small)",
+      "hit@1": 0.8695652173913043,
+      "hit@3": 0.9565217391304348,
+      "hit@5": 0.9565217391304348,
+      "mrr": 0.8985507246376813,
+      "precision@5": 0.45217391304347826,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.96,
+      "search_ms_p50": 39.9
+    },
+    {
+      "config": "Hybrid RRF (bge-small, w=2.0)",
+      "hit@1": 0.9130434782608695,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "mrr": 0.9492753623188406,
+      "precision@5": 0.43478260869565216,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 1.0,
+      "search_ms_p50": 33.7
+    },
+    {
+      "config": "Hybrid + lifecycle (bge-small, w=2.0)",
+      "hit@1": 0.9130434782608695,
+      "hit@3": 0.9565217391304348,
+      "hit@5": 0.9565217391304348,
+      "mrr": 0.9347826086956522,
+      "precision@5": 0.45217391304347826,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 1.0,
+      "search_ms_p50": 41.6
+    },
+    {
+      "config": "Hybrid + lifecycle (bge-small) + rerank bge-reranker-base",
+      "hit@1": 1.0,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "mrr": 1.0,
+      "precision@5": 0.40869565217391307,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 1.0,
+      "search_ms_p50": 8402.9
+    },
+    {
+      "config": "Hybrid + lifecycle (bge-small) + rerank MiniLM-L6",
+      "hit@1": 1.0,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "mrr": 1.0,
+      "precision@5": 0.41739130434782606,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 1.0,
+      "search_ms_p50": 1719.8
+    }
+  ],
+  "questions": [
+    {
+      "id": "h-leave-notice",
+      "category": "versioning",
+      "question": "How far in advance do I need to request leave?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-leave-policy-v2"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Leave Policy v2 (2. Annual leave): \u201cLeave is requested through the HR portal at least three working days in advance for absences longer than one day.\u201d [1]",
+      "expected": "At least three working days in advance for absences longer than one day.",
+      "latency_ms": 295,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "pdf",
+      "warnings": [],
+      "citation_support": true,
+      "stale_primary": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.6,
+      "stale_above_current": false
+    },
+    {
+      "id": "h-doctor-note",
+      "category": "versioning",
+      "question": "Do I need a doctor's note for two days of sick leave?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-leave-policy-v2"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Leave Policy v2 (3. Sick leave): \u201cA doctor's note is required for absences of three or more consecutive days.\u201d [1]",
+      "expected": "No; a note is required only for three or more consecutive days.",
+      "latency_ms": 88,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "pdf",
+      "warnings": [],
+      "citation_support": true,
+      "stale_primary": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 1.0,
+      "stale_above_current": false
+    },
+    {
+      "id": "h-security-ack",
+      "category": "factual",
+      "question": "How long does the Security team take to acknowledge an incident report?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-incident-reporting"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Security Incident Reporting: \u201cThe Security team will acknowledge within one hour during business hours and will tell you what to preserve. Reporting early is never penalised.\u201d [1]",
+      "expected": "Within one hour during business hours.",
+      "latency_ms": 127,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-comp-changes",
+      "category": "factual",
+      "question": "When are compensation changes from the performance cycle applied?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-performance-review"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Performance Review Process: \u201cCompensation changes resulting from the cycle apply from July 1.\u201d [1]",
+      "expected": "From July 1.",
+      "latency_ms": 57,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-peer-feedback",
+      "category": "factual",
+      "question": "How many peers give feedback in a performance review?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-performance-review"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Performance Review Process: \u201cEach employee writes a self-review, collects feedback from three to five peers, and meets their manager for a calibration discussion.\u201d [1]",
+      "expected": "Three to five peers.",
+      "latency_ms": 53,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-401k",
+      "category": "factual",
+      "question": "What is the 401(k) match?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "ref-benefits-overview"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Benefits Overview: \u201c401(k) with a 4 percent match.\u201d [1]",
+      "expected": "4 percent.",
+      "latency_ms": 56,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-grievance-ack",
+      "category": "factual",
+      "question": "How quickly will I get an acknowledgement after raising a grievance?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-grievance-policy"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Grievance Policy: \u201cRaise a grievance in writing to People Operations. You will receive an acknowledgement within two working days and a meeting within ten working days.\u201d [1]",
+      "expected": "Within two working days.",
+      "latency_ms": 53,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-oss-licences",
+      "category": "factual",
+      "question": "Which open-source licences can I use in product code without Legal review?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-software-licensing"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Software Licensing Policy: \u201cOpen-source dependencies in product code must have a licence on the approved list (MIT, Apache-2.0, BSD, MPL-2.0); GPL-family licences need Legal review before use.\u201d [1]",
+      "expected": "MIT, Apache-2.0, BSD, MPL-2.0.",
+      "latency_ms": 67,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-telemetry-retention",
+      "category": "factual",
+      "question": "How long is fleet telemetry kept at full resolution?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-data-retention"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Data Retention Policy: \u201cFleet telemetry is retained for two years in aggregated form and 90 days at full resolution.\u201d [1]",
+      "expected": "90 days (two years aggregated).",
+      "latency_ms": 64,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-vpn-cert",
+      "category": "factual",
+      "question": "What should I do if the VPN client says certificate expired?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-vpn-guide"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the VPN Guide: \u201cIf the client shows \"certificate expired\", run Self Service > Renew VPN Certificate. Contact IT if that fails.\u201d [1]",
+      "expected": "Run Self Service > Renew VPN Certificate; contact IT if that fails.",
+      "latency_ms": 55,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 1.0
+    },
+    {
+      "id": "h-intl-travel",
+      "category": "factual",
+      "question": "Who has to approve international travel?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-travel-policy"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Travel Policy (5. International travel): \u201cInternational trips need written approval from the CTO or the Head of People before booking. Per-diem for international travel is set per trip.\u201d [1]",
+      "expected": "The CTO or the Head of People, in writing, before booking.",
+      "latency_ms": 54,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.4
+    },
+    {
+      "id": "h-hotel-seattle",
+      "category": "multi-hop",
+      "question": "What's the hotel limit per night in Seattle?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-travel-policy"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Travel Policy (4. Limits > 4.2 Hotels and daily spending limits): \u201cHotel room rates, excluding taxes, are capped per night by city tier:\n\nCity tier | Maximum room rate per night\n\nCity tier: Tier 1 | Maximum room rate per night: $275\n\nCity tier: Tier 2 | Maximum room rate per night: $200\n\nCity tier: Tier 3 | Maximum room rate per night: $150\u201d [1]",
+      "expected": "$200 (Seattle is Tier 2).",
+      "latency_ms": 65,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8
+    },
+    {
+      "id": "h-card-receipt",
+      "category": "factual",
+      "question": "How long do I have to upload a receipt for a corporate card transaction?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "fin-corporate-card"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Corporate Card Policy: \u201cEvery transaction needs a receipt uploaded within seven days. Personal spend on the card is a policy breach even if repaid.\u201d [1]",
+      "expected": "Within seven days.",
+      "latency_ms": 75,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-oncall-handover",
+      "category": "factual",
+      "question": "When does the on-call rotation hand over?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-oncall-runbook"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the On-Call Runbook (2. Rotations): \u201cRotations hand over on Mondays at 10:00 Central Time in the team's stand-up. The primary is paged first for every alert routed to the team; the secondary is the backstop.\u201d [1]",
+      "expected": "Mondays at 10:00 Central Time in the team stand-up.",
+      "latency_ms": 65,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 1.0
+    },
+    {
+      "id": "h-sev1-updates",
+      "category": "conflict-resolution",
+      "question": "How often should the incident channel be updated during a SEV1?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-oncall-runbook"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the On-Call Runbook (8. Communication during an incident): \u201cUpdate the incident channel at least every 30 minutes for a SEV1 and every hour for a SEV2, even if the update is \"no change\". Customer-facing updates go on the status page through the Customer Support Escalation process; engineers do not post to customers directly.\u201d [1]",
+      "expected": "At least every 30 minutes (status page updates are at least hourly).",
+      "latency_ms": 71,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8
+    },
+    {
+      "id": "h-replication-lag",
+      "category": "factual",
+      "question": "What happens if replication lag goes above 60 seconds during a migration?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-db-migration-runbook"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Database Migration Runbook: \u201cThe Data Team on-call monitors replication lag during the migration and aborts if lag exceeds 60 seconds.\u201d [1]",
+      "expected": "The Data Team on-call aborts the migration.",
+      "latency_ms": 69,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-it-lead",
+      "category": "people",
+      "question": "Who is the IT Lead?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "org-chart"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Org Chart: \u201cname: Tyler Martinez | role: IT Lead | team: IT Operations | location: Denver\u201d [1]",
+      "expected": "Tyler Martinez.",
+      "latency_ms": 60,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "csv",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.4
+    },
+    {
+      "id": "h-austin-lab",
+      "category": "factual",
+      "question": "Where is the hardware lab in the Austin office?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "office-locations"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Office Locations: \u201cAustin, Texas (headquarters): 4200 Burnet Road. Hardware lab on the ground floor, engineering on floors two and three. Open 07:00 to 22:00 with badge access.\u201d [1]",
+      "expected": "On the ground floor.",
+      "latency_ms": 62,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8
+    },
+    {
+      "id": "h-red-main",
+      "category": "factual",
+      "question": "How long do I have to fix a broken main branch?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-ci-pipeline"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the CI Pipeline Guide: \u201cA red main branch is everyone's problem: the person whose change broke it fixes or reverts within an hour.\u201d [1]",
+      "expected": "The person whose change broke it fixes or reverts within an hour.",
+      "latency_ms": 64,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-unans-dress",
+      "category": "unanswerable",
+      "question": "What is the office dress code?",
+      "answerable_expected": false,
+      "answerable_got": false,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Not covered (only lab safety clothing rules exist).",
+      "latency_ms": 64,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "-",
+      "warnings": []
+    },
+    {
+      "id": "h-unans-rooms",
+      "category": "unanswerable",
+      "question": "How do I book a meeting room in the Denver office?",
+      "answerable_expected": false,
+      "answerable_got": false,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Not covered by the handbook.",
+      "latency_ms": 62,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "-",
+      "warnings": []
+    },
+    {
+      "id": "h-v1-explicit",
+      "category": "deprecated",
+      "question": "What did Leave Policy v1 say about annual leave?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-leave-policy-v1"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "Caution: the best match is from the Leave Policy v1, which is superseded by hr-leave-policy-v2 - no longer applies (effective 2023-01-01).\n\nAccording to the Leave Policy v1 (2. Annual leave): \u201cFull-time employees accrue 12 days of annual leave per calendar year, credited each pay period in equal parts. Leave is requested through the HR portal at least three working days in advance for absences longer than one day.\u201d [1]",
+      "expected": "12 days per year, now superseded by v2's 16 days.",
+      "latency_ms": 57,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 0.5,
+      "precision@5": 0.8
+    },
+    {
+      "id": "h-followup-firmware",
+      "category": "follow-up",
+      "question": "How many days a week does that team work from the lab?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "team-robotics-firmware"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Robotics Firmware Team: \u201cThe team works from the Austin hardware lab three days a week and owns the hardware-in-the-loop test benches described in the CI Pipeline Guide.\u201d [1]",
+      "expected": "Three days a week, from the Austin hardware lab.",
+      "latency_ms": 262,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-sev-dashboard",
+      "category": "factual",
+      "question": "What severity is a mislabelled dashboard chart?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-sev-definitions"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the SEV Definitions (Examples): \u201cDashboard chart mislabelled: SEV4.\u201d [1]",
+      "expected": "SEV4.",
+      "latency_ms": 69,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "txt",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "h-split-leave",
+      "category": "future-dated",
+      "question": "Can secondary caregiver leave be split into blocks?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-parental-leave-policy",
+        "hr-parental-leave-policy-2027"
+      ],
+      "citation_ok": [
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true
+      ],
+      "answer": "According to the Parental Leave Policy (Secondary caregiver leave): \u201cFathers and secondary caregivers receive 12 weeks of fully paid leave, to be taken within six months of the birth or adoption.\u201d [1]\n\nUpcoming change: the Parental Leave Policy (2027 revision) takes effect on 2027-01-01 and says: \u201cThe leave may be split into two blocks within the first twelve months.\u201d [2] Until then the rule above applies.",
+      "expected": "From 2027-01-01 it may be split into two blocks within the first twelve months; the current 2024 policy does not provide for that.",
+      "latency_ms": 111,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "pdf",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "rr": 0.0,
+      "precision@5": 0.4
+    }
+  ]
+}

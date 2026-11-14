@@ -1,0 +1,534 @@
+{
+  "run_at": "2026-11-14T18:32:00",
+  "as_of": "2026-11-14",
+  "client": "in-process",
+  "question_set": "paraphrase.jsonl",
+  "modes": [
+    "extractive"
+  ],
+  "summary": {
+    "questions": 12,
+    "answer_accuracy": 0.3333333333333333,
+    "answerable_accuracy": 0.3333333333333333,
+    "abstention_accuracy": null,
+    "false_abstention_rate": 0.6666666666666666,
+    "citation_support": 0.3333333333333333,
+    "citation_precision": 0.8,
+    "quote_verified": 1.0,
+    "stale_primary_rate": null,
+    "hit@1": 0.8333333333333334,
+    "hit@3": 0.8333333333333334,
+    "hit@5": 0.8333333333333334,
+    "mrr": 0.8333333333333334,
+    "precision@5": 0.4166666666666667,
+    "stale_above_current": 0.0,
+    "latency_p50_ms": 69,
+    "latency_p95_ms": 127,
+    "llm_calls": 0
+  },
+  "by_category": {
+    "paraphrase": {
+      "n": 12,
+      "accuracy": 0.3333333333333333,
+      "hit@5": 0.8333333333333334
+    }
+  },
+  "by_format": {
+    "docx": {
+      "n": 2,
+      "accuracy": 0.0,
+      "hit@5": 1.0
+    },
+    "md": {
+      "n": 9,
+      "accuracy": 0.4444444444444444,
+      "hit@5": 0.7777777777777778
+    },
+    "pdf": {
+      "n": 1,
+      "accuracy": 0.0,
+      "hit@5": 1.0
+    }
+  },
+  "ablation": [
+    {
+      "config": "BM25 only",
+      "hit@1": 0.5,
+      "hit@3": 0.6666666666666666,
+      "hit@5": 0.6666666666666666,
+      "mrr": 0.5694444444444444,
+      "precision@5": 0.2388888888888889,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.25,
+      "search_ms_p50": 1.0
+    },
+    {
+      "config": "BM25 + thesaurus",
+      "hit@1": 0.5,
+      "hit@3": 0.6666666666666666,
+      "hit@5": 0.6666666666666666,
+      "mrr": 0.5694444444444444,
+      "precision@5": 0.2388888888888889,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.25,
+      "search_ms_p50": 1.2
+    },
+    {
+      "config": "BM25 + thesaurus + lifecycle",
+      "hit@1": 0.5,
+      "hit@3": 0.6666666666666666,
+      "hit@5": 0.75,
+      "mrr": 0.5861111111111111,
+      "precision@5": 0.2388888888888889,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.25,
+      "search_ms_p50": 1.3
+    },
+    {
+      "config": "Dense only (model2vec)",
+      "hit@1": 0.6666666666666666,
+      "hit@3": 0.6666666666666666,
+      "hit@5": 0.8333333333333334,
+      "mrr": 0.7083333333333334,
+      "precision@5": 0.2833333333333333,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.25,
+      "search_ms_p50": 2.0
+    },
+    {
+      "config": "Hybrid RRF (model2vec, w=0.5)",
+      "hit@1": 0.5833333333333334,
+      "hit@3": 0.75,
+      "hit@5": 0.8333333333333334,
+      "mrr": 0.6736111111111112,
+      "precision@5": 0.25,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.25,
+      "search_ms_p50": 1.8
+    },
+    {
+      "config": "Hybrid + lifecycle (model2vec, w=0.5)",
+      "hit@1": 0.5833333333333334,
+      "hit@3": 0.8333333333333334,
+      "hit@5": 0.8333333333333334,
+      "mrr": 0.6944444444444445,
+      "precision@5": 0.2833333333333334,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.25,
+      "search_ms_p50": 1.4
+    },
+    {
+      "config": "Dense only (bge-small)",
+      "hit@1": 0.9166666666666666,
+      "hit@3": 0.9166666666666666,
+      "hit@5": 1.0,
+      "mrr": 0.9375,
+      "precision@5": 0.43333333333333335,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.3333333333333333,
+      "search_ms_p50": 35.6
+    },
+    {
+      "config": "Hybrid RRF (bge-small, w=2.0)",
+      "hit@1": 0.75,
+      "hit@3": 0.8333333333333334,
+      "hit@5": 0.8333333333333334,
+      "mrr": 0.7916666666666666,
+      "precision@5": 0.3666666666666667,
+      "stale_above_current": 1.0,
+      "extractive_accuracy": 0.3333333333333333,
+      "search_ms_p50": 39.2
+    },
+    {
+      "config": "Hybrid + lifecycle (bge-small, w=2.0)",
+      "hit@1": 0.8333333333333334,
+      "hit@3": 0.8333333333333334,
+      "hit@5": 0.8333333333333334,
+      "mrr": 0.8333333333333334,
+      "precision@5": 0.4166666666666667,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.3333333333333333,
+      "search_ms_p50": 37.7
+    },
+    {
+      "config": "Hybrid + lifecycle (bge-small) + rerank bge-reranker-base",
+      "hit@1": 0.9166666666666666,
+      "hit@3": 0.9166666666666666,
+      "hit@5": 0.9166666666666666,
+      "mrr": 0.9166666666666666,
+      "precision@5": 0.3,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.3333333333333333,
+      "search_ms_p50": 9507.0
+    },
+    {
+      "config": "Hybrid + lifecycle (bge-small) + rerank MiniLM-L6",
+      "hit@1": 0.9166666666666666,
+      "hit@3": 0.9166666666666666,
+      "hit@5": 0.9166666666666666,
+      "mrr": 0.9166666666666666,
+      "precision@5": 0.35000000000000003,
+      "stale_above_current": 0.0,
+      "extractive_accuracy": 0.3333333333333333,
+      "search_ms_p50": 1724.4
+    }
+  ],
+  "questions": [
+    {
+      "id": "p-taxi-airport",
+      "category": "paraphrase",
+      "question": "Can I get my money back for a taxi to the airport?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "VoyageHub"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Airport transfers are booked through VoyageHub; ride-hailing receipts are reimbursed when VoyageHub has no option in that city.",
+      "latency_ms": 110,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.6
+    },
+    {
+      "id": "p-untaken-leave",
+      "category": "paraphrase",
+      "question": "What happens to leave I haven't taken by December?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "(?<!\\d)8(?!\\d)|eight"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Up to 8 unused days carry into next year and must be used by March 31.",
+      "latency_ms": 127,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "pdf",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 1.0,
+      "stale_above_current": false
+    },
+    {
+      "id": "p-install-apps",
+      "category": "paraphrase",
+      "question": "Am I allowed to install apps on my work machine?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "Self Service"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Only from the Self Service catalogue or with an approved exception under the Software Licensing Policy.",
+      "latency_ms": 98,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "p-stolen-laptop",
+      "category": "paraphrase",
+      "question": "My work laptop was stolen from my car. Who do I tell?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-laptop-policy"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Laptop and Hardware Policy (3. Loss or theft): \u201cReport a lost or stolen laptop to IT and the Security team within 24 hours so that it can be wiped remotely. File a police report for theft; a copy is needed for the insurance claim.\u201d [1]",
+      "expected": "IT and the Security team within 24 hours; file a police report.",
+      "latency_ms": 99,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8
+    },
+    {
+      "id": "p-kid-lab",
+      "category": "paraphrase",
+      "question": "Can I bring my kid to see the robots in the lab?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "yellow line|accompanied"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Visitors stay behind the yellow line and guests must be accompanied in lab areas.",
+      "latency_ms": 57,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8
+    },
+    {
+      "id": "p-prod-db-access",
+      "category": "paraphrase",
+      "question": "How do I get into the production database?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-access-request"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Access Request Process: \u201cProduction database access additionally needs sign-off from the Security Lead and is reviewed every quarter.\u201d [1]",
+      "expected": "Request it in the IT portal; production database access also needs Security Lead sign-off.",
+      "latency_ms": 49,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "p-friend-hired",
+      "category": "paraphrase",
+      "question": "What do I get if a friend I recommended gets hired?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "3,?000"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "A $3,000 referral bonus after they complete 90 days.",
+      "latency_ms": 64,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "p-complain-manager",
+      "category": "paraphrase",
+      "question": "If I formally complain about my manager, how soon will I hear back?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "two working days"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Grievances are acknowledged within two working days, with a meeting within ten.",
+      "latency_ms": 117,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "rr": 0.0,
+      "precision@5": 0.0
+    },
+    {
+      "id": "p-tech-conference",
+      "category": "paraphrase",
+      "question": "Is there money for going to tech conferences?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "3,?000"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Yes, a $3,000 annual budget for conferences, courses, certifications and books.",
+      "latency_ms": 44,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.6
+    },
+    {
+      "id": "p-raises",
+      "category": "paraphrase",
+      "question": "When do raises take effect?",
+      "answerable_expected": true,
+      "answerable_got": false,
+      "correct": false,
+      "missing": [
+        "July 1"
+      ],
+      "forbidden_found": [],
+      "citations": [],
+      "citation_ok": [],
+      "quote_verified": [],
+      "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
+      "expected": "Compensation changes from the review cycle apply from July 1.",
+      "latency_ms": 58,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": false,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "rr": 0.0,
+      "precision@5": 0.0
+    },
+    {
+      "id": "p-own-laptop-customer-data",
+      "category": "paraphrase",
+      "question": "Can I look at customer data on my personal laptop?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-byod-policy"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "According to the Bring Your Own Device Policy: \u201cPersonal laptops may not access source code, customer data or the fleet console. Lost personal devices with company data must be reported under the Security Incident Reporting process.\u201d [1]",
+      "expected": "No. Personal laptops may not access source code, customer data or the fleet console.",
+      "latency_ms": 42,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.4
+    },
+    {
+      "id": "p-logs-never",
+      "category": "paraphrase",
+      "question": "What must never end up in our logs?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-logging-standards",
+        "eng-rollback-procedure"
+      ],
+      "citation_ok": [
+        true,
+        false
+      ],
+      "quote_verified": [
+        true,
+        true
+      ],
+      "answer": "According to the Logging Standards: \u201cNever log secrets, tokens, full card numbers or personal data beyond an opaque user id. Use INFO for business events, WARN for recoverable problems, and ERROR only for failures that need a human.\u201d [1]\n\nAlso relevant, from the Rollback Procedure: \u201cOpen a follow-up ticket to fix forward; a rollback is never the end of the story.\u201d [2]",
+      "expected": "Secrets, tokens, full card numbers or personal data beyond an opaque user id.",
+      "latency_ms": 69,
+      "llm_calls": 0,
+      "mode": "extractive",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    }
+  ]
+}

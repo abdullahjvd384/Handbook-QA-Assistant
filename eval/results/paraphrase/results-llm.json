@@ -1,0 +1,499 @@
+{
+  "run_at": "2026-11-14T18:39:59",
+  "as_of": "2026-11-14",
+  "client": "in-process",
+  "question_set": "paraphrase.jsonl",
+  "modes": [
+    "llm"
+  ],
+  "summary": {
+    "questions": 12,
+    "answer_accuracy": 1.0,
+    "answerable_accuracy": 1.0,
+    "abstention_accuracy": null,
+    "false_abstention_rate": 0.0,
+    "citation_support": 1.0,
+    "citation_precision": 0.9354838709677419,
+    "quote_verified": 1.0,
+    "stale_primary_rate": 0.0,
+    "hit@1": 0.8333333333333334,
+    "hit@3": 0.8333333333333334,
+    "hit@5": 0.9166666666666666,
+    "mrr": 0.8680555555555555,
+    "precision@5": 0.45,
+    "stale_above_current": 0.0,
+    "latency_p50_ms": 4812,
+    "latency_p95_ms": 11084,
+    "llm_calls": 24
+  },
+  "by_category": {
+    "paraphrase": {
+      "n": 12,
+      "accuracy": 1.0,
+      "hit@5": 0.9166666666666666
+    }
+  },
+  "by_format": {
+    "docx": {
+      "n": 2,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    },
+    "md": {
+      "n": 9,
+      "accuracy": 1.0,
+      "hit@5": 0.8888888888888888
+    },
+    "pdf": {
+      "n": 1,
+      "accuracy": 1.0,
+      "hit@5": 1.0
+    }
+  },
+  "ablation": null,
+  "questions": [
+    {
+      "id": "p-taxi-airport",
+      "category": "paraphrase",
+      "question": "Can I get my money back for a taxi to the airport?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-travel-policy"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "The handbook does not explicitly say that taxi receipts are reimbursed. For airport trips, it says airport transfers should be booked through VoyageHub, and ride-hailing receipts are reimbursed only when VoyageHub has no option in that city.[1]",
+      "expected": "Airport transfers are booked through VoyageHub; ride-hailing receipts are reimbursed when VoyageHub has no option in that city.",
+      "latency_ms": 11084,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.4
+    },
+    {
+      "id": "p-untaken-leave",
+      "category": "paraphrase",
+      "question": "What happens to leave I haven't taken by December?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-leave-policy-v2",
+        "hr-leave-policy-v2",
+        "hr-leave-policy-v2"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true
+      ],
+      "answer": "Under the current Leave Policy v2, up to 8 unused annual leave days can be carried into the next calendar year, but those carried days must be used by March 31 or they lapse.[1] Leave is not paid out unless state law requires it.[2]",
+      "expected": "Up to 8 unused days carry into next year and must be used by March 31.",
+      "latency_ms": 4875,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "pdf",
+      "warnings": [],
+      "citation_support": true,
+      "stale_primary": false,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8,
+      "stale_above_current": false
+    },
+    {
+      "id": "p-install-apps",
+      "category": "paraphrase",
+      "question": "Am I allowed to install apps on my work machine?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-laptop-policy",
+        "it-software-licensing",
+        "it-software-licensing"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true
+      ],
+      "answer": "Yes, but only from the Self Service catalogue or with an approved exception under the Software Licensing Policy.[1] You must use software only under a licence the company holds, and personal licences may not be used for company work.[2]",
+      "expected": "Only from the Self Service catalogue or with an approved exception under the Software Licensing Policy.",
+      "latency_ms": 3889,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.6
+    },
+    {
+      "id": "p-stolen-laptop",
+      "category": "paraphrase",
+      "question": "My work laptop was stolen from my car. Who do I tell?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-laptop-policy",
+        "it-incident-reporting",
+        "it-laptop-policy"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true
+      ],
+      "answer": "Tell IT and the Security team within 24 hours so the laptop can be wiped remotely. You should also report the security incident immediately to security@northgate.example and post in #security-incidents, and file a police report because a copy is needed for the insurance claim.[1][2]",
+      "expected": "IT and the Security team within 24 hours; file a police report.",
+      "latency_ms": 3891,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.6
+    },
+    {
+      "id": "p-kid-lab",
+      "category": "paraphrase",
+      "question": "Can I bring my kid to see the robots in the lab?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "office-locations",
+        "hr-lab-safety",
+        "hr-lab-safety",
+        "hr-lab-safety"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "answer": "The handbook does not mention children specifically, but it does allow guests/visitors subject to the visitor and lab rules: register at reception, keep your kid accompanied in lab areas, and have visitors stay behind the yellow line. In the hardware lab, closed shoes and safety glasses are required at all times, and food and drink must stay outside the lab.[1][2]",
+      "expected": "Visitors stay behind the yellow line and guests must be accompanied in lab areas.",
+      "latency_ms": 7175,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 1.0
+    },
+    {
+      "id": "p-prod-db-access",
+      "category": "paraphrase",
+      "question": "How do I get into the production database?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-access-request",
+        "it-access-request",
+        "sec-security-policy",
+        "team-data"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "answer": "Request production database access through the IT portal. The request is routed to the system owner for approval with your manager copied, and production database access also needs Security Lead sign-off; access is reviewed quarterly.[1] You must have a business need and access customer data only through approved systems over the VPN.[2] The Data Team reviews data access requests under the Access Request Process.[3]",
+      "expected": "Request it in the IT portal; production database access also needs Security Lead sign-off.",
+      "latency_ms": 5286,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "p-friend-hired",
+      "category": "paraphrase",
+      "question": "What do I get if a friend I recommended gets hired?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-referral-policy",
+        "hr-referral-policy",
+        "hr-referral-policy",
+        "hr-referral-policy"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "answer": "If you referred the candidate through the HR portal before they applied, and they are hired into a full-time role and complete 90 days of employment, you receive a $3,000 referral bonus with the next payroll. For intern or contract roles, the bonus is half that amount. Talent Acquisition team members, the hiring manager for the role, and executives are not eligible.",
+      "expected": "A $3,000 referral bonus after they complete 90 days.",
+      "latency_ms": 4812,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    },
+    {
+      "id": "p-complain-manager",
+      "category": "paraphrase",
+      "question": "If I formally complain about my manager, how soon will I hear back?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-grievance-policy",
+        "hr-grievance-policy"
+      ],
+      "citation_ok": [
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true
+      ],
+      "answer": "If you raise a formal grievance in writing to People Operations, you will get an acknowledgement within two working days and a meeting within ten working days.[1] If the complaint is about harassment, the handbook says it is handled separately and confidentially under the Anti-Harassment Policy.[2]",
+      "expected": "Grievances are acknowledged within two working days, with a meeting within ten.",
+      "latency_ms": 5009,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": true,
+      "rr": 0.25,
+      "precision@5": 0.2
+    },
+    {
+      "id": "p-tech-conference",
+      "category": "paraphrase",
+      "question": "Is there money for going to tech conferences?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-training-policy",
+        "fin-approval-matrix",
+        "hr-training-policy"
+      ],
+      "citation_ok": [
+        true,
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true,
+        true
+      ],
+      "answer": "Yes. Each employee has an annual $3,000 budget for conferences, courses, certifications and books; conference attendance up to $3,000 is approved by your direct manager.[1][2] If you present at a conference, the ticket cost is refunded back to the budget.[3]",
+      "expected": "Yes, a $3,000 annual budget for conferences, courses, certifications and books.",
+      "latency_ms": 3964,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "docx",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.8
+    },
+    {
+      "id": "p-raises",
+      "category": "paraphrase",
+      "question": "When do raises take effect?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "hr-performance-review"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "Compensation changes resulting from the annual performance review cycle apply from July 1.[1]",
+      "expected": "Compensation changes from the review cycle apply from July 1.",
+      "latency_ms": 3121,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "rr": 0.16666666666666666,
+      "precision@5": 0.0
+    },
+    {
+      "id": "p-own-laptop-customer-data",
+      "category": "paraphrase",
+      "question": "Can I look at customer data on my personal laptop?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "it-byod-policy",
+        "sec-security-policy"
+      ],
+      "citation_ok": [
+        true,
+        true
+      ],
+      "quote_verified": [
+        true,
+        true
+      ],
+      "answer": "No. Personal laptops may not access customer data.[1] Customer data may be accessed only by people with a business need, through approved systems, over the VPN.[2]",
+      "expected": "No. Personal laptops may not access source code, customer data or the fleet console.",
+      "latency_ms": 3447,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.4
+    },
+    {
+      "id": "p-logs-never",
+      "category": "paraphrase",
+      "question": "What must never end up in our logs?",
+      "answerable_expected": true,
+      "answerable_got": true,
+      "correct": true,
+      "missing": [],
+      "forbidden_found": [],
+      "citations": [
+        "eng-logging-standards"
+      ],
+      "citation_ok": [
+        true
+      ],
+      "quote_verified": [
+        true
+      ],
+      "answer": "Never log secrets, tokens, full card numbers, or personal data beyond an opaque user id.[1]",
+      "expected": "Secrets, tokens, full card numbers or personal data beyond an opaque user id.",
+      "latency_ms": 3409,
+      "llm_calls": 2,
+      "mode": "llm",
+      "format": "md",
+      "warnings": [],
+      "citation_support": true,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "rr": 1.0,
+      "precision@5": 0.2
+    }
+  ]
+}
