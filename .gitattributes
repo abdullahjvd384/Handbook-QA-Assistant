@@ -1,0 +1,11 @@
+# Normalise source files to LF in the repository.
+* text=auto eol=lf
+
+# The handbook corpus is test data: keep it byte-for-byte, because citations
+# and highlights are character offsets into these files.
+data/corpus/** -text
+
+# Binary formats
+*.pdf  binary
+*.docx binary
+*.png  binary
