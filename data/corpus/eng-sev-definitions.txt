@@ -1,0 +1,11 @@
+SEV DEFINITIONS
+
+SEV1  Customer-facing outage, data loss, or robot safety fault. Acknowledge within 15 minutes. Incident commander required. Status page update required. Post-incident review required.
+SEV2  Major degradation or a single large customer down. Acknowledge within 45 minutes. Incident channel required. Post-incident review required.
+SEV3  Minor degradation with a workaround. Acknowledge within 4 hours. Ticket required.
+SEV4  Cosmetic or low-impact. Business hours. Ticket required.
+
+Examples
+- Payments API returning errors for all customers: SEV1.
+- Fleet console slow for one customer: SEV2.
+- Dashboard chart mislabelled: SEV4.

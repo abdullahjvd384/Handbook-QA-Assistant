@@ -1,0 +1,7 @@
+All-hands summary, September 25, 2026
+
+Tyler Anderson opened with the quarter's shipping highlights: the second-generation mobile base entered pilot with three customers, and fleet telemetry latency dropped by 40 percent after the Data Team's pipeline rewrite.
+
+Operational notes: the on-call escalation bridge extension changed earlier this year and is now 304; the On-Call Runbook has been updated. Reminder that deploy freezes apply 72 hours before each release.
+
+People: Jamal Rivera reminded everyone that the 2027 parental leave revision does not apply until its effective date.

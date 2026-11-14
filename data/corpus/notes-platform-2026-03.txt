@@ -1,0 +1,11 @@
+Platform fortnightly, March 12, 2026
+Attendees: Maya Brooks, Maya Rivera, four engineers.
+
+Decisions
+- Keep the canary stage at ten minutes; the proposal to shorten it to five was rejected after the February incident.
+- Flag cleanup: 14 flags older than 90 days were removed.
+- The rollback window stays at 45 minutes; the deploy console change to make it configurable is deferred.
+
+Actions
+- Maya Brooks: update the deploy runbook wording about freeze exceptions.
+- Maya Rivera: schedule the quarterly backup restore test.

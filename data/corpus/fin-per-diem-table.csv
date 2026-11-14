@@ -1,0 +1,16 @@
+grade,city_tier,example_cities,per_diem_usd
+L1,1,"New York; San Francisco; Boston",70
+L1,2,"Chicago; Seattle; Los Angeles; Washington DC",55
+L1,3,"Omaha; Tulsa; Boise; Albuquerque; Des Moines",40
+L2,1,"New York; San Francisco; Boston",80
+L2,2,"Chicago; Seattle; Los Angeles; Washington DC",65
+L2,3,"Omaha; Tulsa; Boise; Albuquerque; Des Moines",50
+L3,1,"New York; San Francisco; Boston",90
+L3,2,"Chicago; Seattle; Los Angeles; Washington DC",75
+L3,3,"Omaha; Tulsa; Boise; Albuquerque; Des Moines",60
+L4,1,"New York; San Francisco; Boston",100
+L4,2,"Chicago; Seattle; Los Angeles; Washington DC",85
+L4,3,"Omaha; Tulsa; Boise; Albuquerque; Des Moines",70
+L5,1,"New York; San Francisco; Boston",110
+L5,2,"Chicago; Seattle; Los Angeles; Washington DC",95
+L5,3,"Omaha; Tulsa; Boise; Albuquerque; Des Moines",80

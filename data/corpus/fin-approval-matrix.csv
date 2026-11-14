@@ -1,0 +1,7 @@
+item,approver,limit_usd
+Expense claim,Direct manager,2500
+Expense claim,Vice President,above 2500
+Purchase order,Procurement,above 10000
+New vendor,Finance and Legal,any
+Headcount,CTO and Head of People,any
+Conference attendance,Direct manager,3000

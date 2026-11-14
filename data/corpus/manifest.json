@@ -1,0 +1,582 @@
+{
+  "company": "Northgate Robotics, Inc.",
+  "documents": [
+    {
+      "doc_id": "hr-leave-policy-v1",
+      "path": "hr-leave-policy-v1.md",
+      "title": "Leave Policy v1",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2023-01-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-leave-policy-v2",
+      "path": "hr-leave-policy-v2.pdf",
+      "title": "Leave Policy v2",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2025-04-01",
+      "status": "current",
+      "supersedes": "hr-leave-policy-v1"
+    },
+    {
+      "doc_id": "hr-travel-policy",
+      "path": "hr-travel-policy.docx",
+      "title": "Travel Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-06-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-expense-policy",
+      "path": "fin-expense-policy.md",
+      "title": "Expense Policy",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2024-09-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-remote-work-policy",
+      "path": "hr-remote-work-policy.md",
+      "title": "Remote Work Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-02-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-probation-policy",
+      "path": "hr-probation-policy.docx",
+      "title": "Introductory Period Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2023-05-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-referral-policy",
+      "path": "hr-referral-policy.md",
+      "title": "Employee Referral Policy",
+      "category": "HR",
+      "owner": "Talent Acquisition",
+      "effective_date": "2024-01-10",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-parental-leave-policy",
+      "path": "hr-parental-leave-policy.md",
+      "title": "Parental Leave Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-04-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-parental-leave-policy-2027",
+      "path": "hr-parental-leave-policy-2027.pdf",
+      "title": "Parental Leave Policy (2027 revision)",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2027-01-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-code-of-conduct",
+      "path": "hr-code-of-conduct.pdf",
+      "title": "Code of Conduct",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2022-11-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-performance-review",
+      "path": "hr-performance-review.md",
+      "title": "Performance Review Process",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-01-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-working-hours-holidays",
+      "path": "hr-working-hours-holidays.md",
+      "title": "Working Hours and Holidays",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2025-12-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-grievance-policy",
+      "path": "hr-grievance-policy.md",
+      "title": "Grievance Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2023-03-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-notice-and-exit",
+      "path": "hr-notice-and-exit.md",
+      "title": "Resignation Notice and Exit Process",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2023-08-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-laptop-policy",
+      "path": "it-laptop-policy.md",
+      "title": "Laptop and Hardware Policy",
+      "category": "IT",
+      "owner": "IT Operations",
+      "effective_date": "2024-03-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-vpn-guide",
+      "path": "it-vpn-guide.md",
+      "title": "VPN Guide",
+      "category": "IT",
+      "owner": "IT Operations",
+      "effective_date": "2024-08-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-access-request",
+      "path": "it-access-request.md",
+      "title": "Access Request Process",
+      "category": "IT",
+      "owner": "IT Operations",
+      "effective_date": "2024-05-10",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-incident-reporting",
+      "path": "it-incident-reporting.md",
+      "title": "Security Incident Reporting",
+      "category": "IT",
+      "owner": "Security",
+      "effective_date": "2024-11-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-password-policy",
+      "path": "it-password-policy.md",
+      "title": "Password and Authentication Policy",
+      "category": "IT",
+      "owner": "Security",
+      "effective_date": "2025-02-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-software-licensing",
+      "path": "it-software-licensing.md",
+      "title": "Software Licensing Policy",
+      "category": "IT",
+      "owner": "IT Operations",
+      "effective_date": "2023-10-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-email-messaging",
+      "path": "it-email-messaging.md",
+      "title": "Email and Messaging Guidelines",
+      "category": "IT",
+      "owner": "IT Operations",
+      "effective_date": "2023-06-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-byod-policy",
+      "path": "it-byod-policy.md",
+      "title": "Bring Your Own Device Policy",
+      "category": "IT",
+      "owner": "Security",
+      "effective_date": "2024-07-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-deploy-runbook",
+      "path": "eng-deploy-runbook.md",
+      "title": "Production Deploy Runbook",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-08-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-deploy-runbook-2023",
+      "path": "eng-deploy-runbook-2023.pdf",
+      "title": "Production Deploy Runbook (2023)",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2023-04-01",
+      "status": "deprecated"
+    },
+    {
+      "doc_id": "eng-rollback-procedure",
+      "path": "eng-rollback-procedure.md",
+      "title": "Rollback Procedure",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-08-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-oncall-runbook",
+      "path": "eng-oncall-runbook.md",
+      "title": "On-Call Runbook",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-06-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-db-migration-runbook",
+      "path": "eng-db-migration-runbook.md",
+      "title": "Database Migration Runbook",
+      "category": "Engineering",
+      "owner": "Data Team",
+      "effective_date": "2025-03-10",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-disaster-recovery",
+      "path": "eng-disaster-recovery.md",
+      "title": "Disaster Recovery Runbook",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-05-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-code-review",
+      "path": "eng-code-review.md",
+      "title": "Code Review Guidelines",
+      "category": "Engineering",
+      "owner": "CTO Office",
+      "effective_date": "2024-10-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-ci-pipeline",
+      "path": "eng-ci-pipeline.md",
+      "title": "CI Pipeline Guide",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2024-12-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-logging-standards",
+      "path": "eng-logging-standards.md",
+      "title": "Logging Standards",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2024-04-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-feature-flags",
+      "path": "eng-feature-flags.md",
+      "title": "Feature Flag Process",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-01-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-api-style-guide",
+      "path": "eng-api-style-guide.md",
+      "title": "API Style Guide",
+      "category": "Engineering",
+      "owner": "CTO Office",
+      "effective_date": "2024-08-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-per-diem-table",
+      "path": "fin-per-diem-table.csv",
+      "title": "Per-Diem Table",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2025-01-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-reimbursement-sla",
+      "path": "fin-reimbursement-sla.md",
+      "title": "Reimbursement SLA",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2024-09-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-procurement-policy",
+      "path": "fin-procurement-policy.pdf",
+      "title": "Procurement Policy",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2024-02-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-corporate-card",
+      "path": "fin-corporate-card.md",
+      "title": "Corporate Card Policy",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2024-02-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-approval-matrix",
+      "path": "fin-approval-matrix.csv",
+      "title": "Budget Approval Matrix",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2025-01-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "team-data",
+      "path": "team-data.md",
+      "title": "Data Team",
+      "category": "Teams",
+      "owner": "Data Team",
+      "effective_date": "2026-01-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "team-platform",
+      "path": "team-platform.md",
+      "title": "Platform Team",
+      "category": "Teams",
+      "owner": "Platform Team",
+      "effective_date": "2026-01-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "team-robotics-firmware",
+      "path": "team-robotics-firmware.md",
+      "title": "Robotics Firmware Team",
+      "category": "Teams",
+      "owner": "Robotics Firmware",
+      "effective_date": "2026-01-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "team-product",
+      "path": "team-product.md",
+      "title": "Product Team",
+      "category": "Teams",
+      "owner": "Product",
+      "effective_date": "2026-01-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "org-chart",
+      "path": "org-chart.csv",
+      "title": "Org Chart",
+      "category": "Teams",
+      "owner": "People Operations",
+      "effective_date": "2026-01-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "office-locations",
+      "path": "office-locations.md",
+      "title": "Office Locations",
+      "category": "Teams",
+      "owner": "Facilities",
+      "effective_date": "2025-09-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "ref-glossary",
+      "path": "ref-glossary.md",
+      "title": "Glossary",
+      "category": "Reference",
+      "owner": "CTO Office",
+      "effective_date": "2025-05-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "ref-faq",
+      "path": "ref-faq.md",
+      "title": "Handbook FAQ",
+      "category": "Reference",
+      "owner": "People Operations",
+      "effective_date": "2026-02-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "ref-onboarding-checklist",
+      "path": "ref-onboarding-checklist.md",
+      "title": "Onboarding Checklist",
+      "category": "Reference",
+      "owner": "People Operations",
+      "effective_date": "2025-11-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "ref-handbook-index",
+      "path": "ref-handbook-index.html",
+      "title": "Handbook Index",
+      "category": "Reference",
+      "owner": "People Operations",
+      "effective_date": "2026-10-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "ref-benefits-overview",
+      "path": "ref-benefits-overview.md",
+      "title": "Benefits Overview",
+      "category": "Reference",
+      "owner": "People Operations",
+      "effective_date": "2025-04-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "sec-security-policy",
+      "path": "sec-security-policy.pdf",
+      "title": "Information Security Policy",
+      "category": "IT",
+      "owner": "Security",
+      "effective_date": "2025-02-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "notes-platform-2026-03",
+      "path": "notes-platform-2026-03.txt",
+      "title": "Platform Meeting Notes, March 2026",
+      "category": "Meeting Notes",
+      "owner": "Platform Team",
+      "effective_date": "2026-03-12",
+      "status": "current"
+    },
+    {
+      "doc_id": "notes-people-2026-06",
+      "path": "notes-people-2026-06.txt",
+      "title": "People Operations Notes, June 2026",
+      "category": "Meeting Notes",
+      "owner": "People Operations",
+      "effective_date": "2026-06-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "notes-allhands-2026-09",
+      "path": "notes-allhands-2026-09.txt",
+      "title": "All-Hands Summary, September 2026",
+      "category": "Meeting Notes",
+      "owner": "CTO Office",
+      "effective_date": "2026-09-25",
+      "status": "current"
+    },
+    {
+      "doc_id": "fin-vendor-policy",
+      "path": "fin-vendor-policy.docx",
+      "title": "Vendor Policy",
+      "category": "Finance",
+      "owner": "Finance",
+      "effective_date": "2024-02-20",
+      "status": "current"
+    },
+    {
+      "doc_id": "it-data-retention",
+      "path": "it-data-retention.docx",
+      "title": "Data Retention Policy",
+      "category": "IT",
+      "owner": "Security",
+      "effective_date": "2025-02-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-travel-booking-guide",
+      "path": "hr-travel-booking-guide.md",
+      "title": "VoyageHub Booking Guide",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-06-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-training-policy",
+      "path": "hr-training-policy.docx",
+      "title": "Training and Conference Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-01-10",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-wfh-equipment",
+      "path": "hr-wfh-equipment.md",
+      "title": "WFH Equipment Policy",
+      "category": "HR",
+      "owner": "People Operations",
+      "effective_date": "2024-02-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-release-calendar",
+      "path": "eng-release-calendar.csv",
+      "title": "Release Calendar",
+      "category": "Engineering",
+      "owner": "Product",
+      "effective_date": "2026-10-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-sev-definitions",
+      "path": "eng-sev-definitions.txt",
+      "title": "SEV Definitions",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-06-15",
+      "status": "current"
+    },
+    {
+      "doc_id": "support-escalation",
+      "path": "support-escalation.html",
+      "title": "Customer Support Escalation",
+      "category": "Reference",
+      "owner": "Customer Support",
+      "effective_date": "2025-07-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-observability-guide",
+      "path": "eng-observability-guide.md",
+      "title": "Observability Guide",
+      "category": "Engineering",
+      "owner": "Platform Team",
+      "effective_date": "2025-02-10",
+      "status": "current"
+    },
+    {
+      "doc_id": "eng-fleet-console-guide",
+      "path": "eng-fleet-console-guide.md",
+      "title": "Fleet Console Guide",
+      "category": "Engineering",
+      "owner": "Robotics Firmware",
+      "effective_date": "2025-09-01",
+      "status": "current"
+    },
+    {
+      "doc_id": "hr-lab-safety",
+      "path": "hr-lab-safety.md",
+      "title": "Lab Safety Rules",
+      "category": "HR",
+      "owner": "Facilities",
+      "effective_date": "2024-05-01",
+      "status": "current"
+    }
+  ]
+}
