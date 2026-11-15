@@ -80,19 +80,19 @@ def format_evidence(res: dict, doc_text) -> str:
 class Judge:
     def __init__(self, model: str | None = None, effort: str = "medium"):
         from app.config import Settings
-        from app.qa.llm import make_answerer
+        from app.qa.llm import LLMAnswerer
 
         settings = Settings()
         if model:
-            settings = replace(settings, openai_model=model, llm_model=model)
-        self.llm = make_answerer(settings)
+            settings = replace(settings, openai_model=model)
+        self.llm = LLMAnswerer(settings)
         if not self.llm.available():
-            raise SystemExit("--judge needs OPENAI_API_KEY or ANTHROPIC_API_KEY")
+            raise SystemExit("--judge needs OPENAI_API_KEY")
         self.effort = effort
 
     @property
     def label(self) -> str:
-        return f"{self.llm.provider}:{self.llm.model}"
+        return f"openai:{self.llm.model}"
 
     @property
     def calls(self) -> int:

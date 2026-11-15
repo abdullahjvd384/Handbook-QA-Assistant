@@ -62,11 +62,8 @@ class Settings:
     vector_store: str = field(default_factory=lambda: os.getenv("HANDBOOK_VECTOR_STORE", "auto").lower())
     qdrant_url: str = field(default_factory=lambda: os.getenv("QDRANT_URL", "http://localhost:6333"))
     qdrant_collection: str = field(default_factory=lambda: os.getenv("QDRANT_COLLECTION", "handbook_chunks"))
-    # Answer generation: "auto" uses Claude when credentials exist, otherwise extractive.
+    # Answer generation: "auto" uses the LLM when OPENAI_API_KEY is set, otherwise extractive.
     answer_mode: str = field(default_factory=lambda: os.getenv("HANDBOOK_ANSWER_MODE", "auto"))
-    # "auto" picks whichever key is set (Anthropic first); or force "anthropic" / "openai".
-    llm_provider: str = field(default_factory=lambda: os.getenv("HANDBOOK_LLM_PROVIDER", "auto").lower())
-    llm_model: str = field(default_factory=lambda: os.getenv("HANDBOOK_LLM_MODEL", "claude-opus-5-5"))
     openai_model: str = field(default_factory=lambda: os.getenv("HANDBOOK_OPENAI_MODEL", "gpt-5.5"))
     llm_effort: str = field(default_factory=lambda: os.getenv("HANDBOOK_LLM_EFFORT", "medium"))
     max_upload_bytes: int = 10 * 1024 * 1024

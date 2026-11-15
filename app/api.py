@@ -120,7 +120,6 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
             "vector_store": k.vector_store_name,
             "vector_store_stats": k.vector_store_stats,
             "answer_mode": _qa().resolve_mode(None),
-            "llm_provider": _qa().llm.provider if _qa().llm_available() else None,
             "llm_model": _qa().llm.model if _qa().llm_available() else None,
             "today": settings.today().isoformat(),
         }

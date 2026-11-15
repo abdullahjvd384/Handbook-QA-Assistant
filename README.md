@@ -7,7 +7,7 @@ The handbook mixes Markdown, CSV, plain text, HTML, PDF and Word files. Some doc
 * **Backend:** FastAPI. `POST /api/ask` answers a question; `GET /api/documents/{doc_id}` fetches a document.
 * **Search:** BM25 plus `BAAI/bge-small-en-v1.5` embeddings stored in a **Qdrant** vector database (Docker), fused with Reciprocal Rank Fusion, then a lifecycle-aware re-rank. An optional cross-encoder re-ranker is available.
 * **Answers:**
-  * With an API key (`OPENAI_API_KEY` for `gpt-5.5`, or `ANTHROPIC_API_KEY` for `claude-opus-5-5`), an LLM first restates the question in handbook vocabulary for searching, then writes the answer with structured output. Every quote is checked against the source text, and unverifiable quotes are dropped.
+  * With an OpenAI key (`OPENAI_API_KEY`, model `gpt-5.5`), an LLM first restates the question in handbook vocabulary for searching, then writes the answer with structured output. Every quote is checked against the source text, and unverifiable quotes are dropped.
   * With no key, a deterministic extractive answerer quotes the best-matching sentences and abstains when unsure. The backend always works.
 * **Web page:** chat with clickable citations and follow-up questions. The document viewer highlights the cited passage, on the **original PDF page** for PDFs (PDF.js, bundled, works offline) and in the extracted text for every format. Document upload is searchable immediately, with no restart.
 * **Evaluation:** 106 hand-written questions in three sets (dev, held-out, paraphrase), a scoring script with retrieval metrics and an LLM judge, and a retrieval ablation. All results: [eval/RESULTS.md](eval/RESULTS.md).
@@ -43,19 +43,18 @@ On first start the embedding model (`BAAI/bge-small-en-v1.5`, ONNX, about 70 MB)
 
 **Settings:** copy `.env.example` to `.env` and fill in what you need: API key, models, re-ranker, Qdrant URL. Shell environment variables take precedence. `.env` is git-ignored; never commit keys.
 
-**Optional:** to get LLM-written answers, set **one** key before starting. OpenAI is what the reported results use.
+**Optional:** to get LLM-written answers, set your OpenAI key in `.env` or in the shell before starting.
 
 ```bash
 export OPENAI_API_KEY=sk-proj-...          # Windows PowerShell: $env:OPENAI_API_KEY="sk-proj-..."
-# or: export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-If both are set, Anthropic is used unless `HANDBOOK_LLM_PROVIDER=openai`. Don't commit keys: the app reads them only from the environment.
+Don't commit keys: the app reads them only from the environment or the git-ignored `.env`.
 
 ## 2. Run the tests
 
 ```bash
-python -m pytest -q          # 69 tests, about 2-3 min, no API key needed (3 Qdrant tests skip if Docker isn't running)
+python -m pytest -q          # 68 tests, about 2-3 min, no API key needed (3 Qdrant tests skip if Docker isn't running)
 ```
 
 The tests cover:
@@ -64,7 +63,7 @@ The tests cover:
 * lifecycle rules: supersession, deprecation, and future effective dates;
 * retrieval, including the stale-version re-rank;
 * the extractive answerer and quote verification;
-* the LLM path (OpenAI and Anthropic), using fake clients, so dropped quotes, fallback, search planning and whole-document passages are all exercised;
+* the LLM path, using a fake OpenAI client, so dropped quotes, fallback, search planning and whole-document passages are all exercised;
 * the HTTP API, including upload and immediate querying, and the edge cases in section 5;
 * the eval harness's own arithmetic (recall, nDCG, judge aggregation).
 
@@ -227,7 +226,7 @@ python -m eval.run_eval                                    # dev set (69 questio
 python -m eval.run_eval --mode extractive --ablation       # also compare 6 retrieval configurations
 python -m eval.run_eval --questions eval/heldout.jsonl     # held-out set (25), written before tuning
 python -m eval.run_eval --questions eval/paraphrase.jsonl  # paraphrase probe (12)
-python -m eval.run_eval --mode llm                         # LLM answers (needs OPENAI_API_KEY or ANTHROPIC_API_KEY)
+python -m eval.run_eval --mode llm                         # LLM answers (needs OPENAI_API_KEY)
 python -m eval.run_eval --mode llm --judge                 # plus an LLM judge: faithfulness, relevance, correctness
 python -m eval.run_eval --base-url http://localhost:8000   # same questions through the running HTTP API
 python -m eval.run_eval --mode llm --regrade               # re-apply edited regexes to saved answers (no model calls)
@@ -283,12 +282,10 @@ The ablation (`--ablation`) compares 11 retrieval configurations: BM25 / dense /
 
 | env var | default | |
 |---|---|---|
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | (unset) | Either enables LLM answers in `auto` mode. |
-| `HANDBOOK_LLM_PROVIDER` | `auto` | `auto` (Anthropic if its key is set, else OpenAI) / `openai` / `anthropic`. |
+| `OPENAI_API_KEY` | (unset) | Enables LLM answers in `auto` mode. |
 | `HANDBOOK_ANSWER_MODE` | `auto` | `auto` / `llm` / `extractive`. |
 | `HANDBOOK_OPENAI_MODEL` | `gpt-5.5` | OpenAI model ID. |
-| `HANDBOOK_LLM_MODEL` | `claude-opus-5-5` | Claude model ID. |
-| `HANDBOOK_LLM_EFFORT` | `medium` | `low` / `medium` / `high` (Claude effort / OpenAI `reasoning_effort`). |
+| `HANDBOOK_LLM_EFFORT` | `medium` | `low` / `medium` / `high` (OpenAI `reasoning_effort`). |
 | `HANDBOOK_TODAY` | real date | Override "today" for lifecycle decisions. |
 | `HANDBOOK_DENSE` | `1` | Set `0` to disable dense search (BM25 only, fully offline). |
 | `HANDBOOK_DENSE_MODEL` | `fastembed:BAAI/bge-small-en-v1.5` | Embedding model, `fastembed:<name>` or `model2vec:<name>`. Changing it re-embeds the Qdrant collection automatically. |
@@ -308,7 +305,7 @@ app/
   ingest/pipeline.py  metadata merge, canonical text with offsets, lifecycle, chunking, quality report
   search/             tokenizer + thesaurus, spelling correction, BM25, embeddings (fastembed / model2vec),
                       re-ranker, vector store (Qdrant / memory), hybrid index
-  qa/                 passages, extractive answerer, LLM answerers (OpenAI / Claude), quote verification, service
+  qa/                 passages, extractive answerer, LLM answerer (OpenAI), quote verification, service
   static/             chat page (vanilla JS, no build step); vendor/ holds PDF.js 3.11.174 (Apache-2.0)
 eval/                 question sets, run_eval.py (harness), judge.py (LLM judge), report.py,
                       results/ (raw JSON) and RESULTS.md (generated tables, every failure)

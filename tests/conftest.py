@@ -12,6 +12,9 @@ from app.config import ROOT, Settings  # noqa: E402
 from app.qa.service import QAService  # noqa: E402
 from app.search.index import KnowledgeBase  # noqa: E402
 
+# Tests never call the real API: ignore a key that app.config loaded from .env.
+os.environ.pop("OPENAI_API_KEY", None)
+
 TODAY = date(2026, 11, 14)
 
 

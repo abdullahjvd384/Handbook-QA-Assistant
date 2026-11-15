@@ -1,16 +1,15 @@
-"""The LLM path, exercised with fake clients: no network, no API key."""
+"""The LLM path, exercised with a fake OpenAI client: no network, no API key."""
 import json
 from types import SimpleNamespace
 
-from app.qa.llm import ClaudeAnswerer
+from app.qa.llm import LLMAnswerer
 from app.qa.service import QAService
 
 from .conftest import TODAY
 
 
 def _is_planning(kwargs) -> bool:
-    fmt = kwargs.get("output_config", {}).get("format") or kwargs.get("response_format", {}).get("json_schema", {})
-    return "search_query" in json.dumps(fmt)
+    return "search_query" in json.dumps(kwargs["response_format"]["json_schema"])
 
 
 def _echo_plan(kwargs) -> dict:
@@ -20,7 +19,15 @@ def _echo_plan(kwargs) -> dict:
     return {"question": q, "search_query": q}
 
 
-class FakeMessages:
+def _completion(reply: dict, refusal: str | None = None):
+    msg = SimpleNamespace(content=None if refusal else json.dumps(reply), refusal=refusal)
+    return SimpleNamespace(choices=[SimpleNamespace(message=msg, finish_reason="stop")])
+
+
+class FakeCompletions:
+    """Stands in for client.chat.completions. Replies are consumed in order; a planning
+    request takes a reply only if the next one is a plan, otherwise it echoes the question."""
+
     def __init__(self, replies):
         self.replies = list(replies)
         self.requests = []          # answer requests
@@ -30,29 +37,26 @@ class FakeMessages:
         if _is_planning(kwargs):
             self.plan_requests.append(kwargs)
             if self.replies and isinstance(self.replies[0], dict) and "search_query" in self.replies[0]:
-                reply = self.replies.pop(0)
-            else:
-                reply = _echo_plan(kwargs)
-            return SimpleNamespace(stop_reason="end_turn",
-                                   content=[SimpleNamespace(type="text", text=json.dumps(reply))])
+                return _completion(self.replies.pop(0))
+            return _completion(_echo_plan(kwargs))
         self.requests.append(kwargs)
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):
             raise reply
         if isinstance(reply, SimpleNamespace):
             return reply
-        return SimpleNamespace(stop_reason="end_turn",
-                               content=[SimpleNamespace(type="text", text=json.dumps(reply))])
+        return _completion(reply)
 
 
 class FakeClient:
     def __init__(self, replies):
-        self.messages = FakeMessages(replies)
+        self.completions = FakeCompletions(replies)
+        self.chat = SimpleNamespace(completions=self.completions)
 
 
 def make_service(kb, settings, replies):
     client = FakeClient(replies)
-    return QAService(kb, settings, ClaudeAnswerer(settings, client=client)), client
+    return QAService(kb, settings, LLMAnswerer(settings, client=client)), client.completions
 
 
 def test_valid_quotes_are_kept_and_invented_ones_dropped(kb, settings):
@@ -81,9 +85,10 @@ def test_request_shape(kb, settings):
              "citations": [{"passage_id": "P1", "quote": "Full-time employees accrue 16 days of annual leave per calendar year"}]}
     qa, client = make_service(kb, settings, [reply])
     qa.ask("How many days of annual leave do I get?", as_of=TODAY, mode="llm")
-    req = client.messages.requests[0]
-    assert req["model"] == settings.llm_model
-    assert req["output_config"]["format"]["type"] == "json_schema"
+    req = client.requests[0]
+    assert req["model"] == settings.openai_model
+    assert req["messages"][0]["role"] == "system"
+    assert req["response_format"]["json_schema"]["strict"] is True
     assert "Today's date: 2026-11-14" in req["messages"][-1]["content"]
     assert "SUPERSEDED" in req["messages"][-1]["content"] or "IN FORCE" in req["messages"][-1]["content"]
     assert "temperature" not in req
@@ -100,7 +105,7 @@ def test_unverifiable_answer_falls_back_to_extractive(kb, settings):
 
 
 def test_refusal_or_error_falls_back(kb, settings):
-    refusal = SimpleNamespace(stop_reason="refusal", content=[])
+    refusal = _completion({}, refusal="I can't help with that.")
     qa, _ = make_service(kb, settings, [refusal])
     res = qa.ask("How many days of annual leave do I get?", as_of=TODAY, mode="llm")
     assert res["mode"] == "extractive (fallback)"
@@ -119,7 +124,7 @@ def test_small_talk_makes_no_model_calls(kb, settings):
     qa, client = make_service(kb, settings, [])
     res = qa.ask("Hi there!", as_of=TODAY, mode="llm")
     assert res["mode"] == "small-talk" and res["llm_calls"] == 0 and not res["citations"]
-    assert not client.messages.requests and not client.messages.plan_requests
+    assert not client.requests and not client.plan_requests
 
 
 def test_follow_up_is_rewritten_then_answered(kb, settings):
@@ -135,49 +140,16 @@ def test_follow_up_is_rewritten_then_answered(kb, settings):
     assert res["standalone_question"] == rewrite["question"]
     assert res["citations"][0]["doc_id"] == "fin-per-diem-table"
     # history is passed to the answer call, ending with the new question
-    msgs = client.messages.requests[0]["messages"]
-    assert msgs[0]["role"] == "user" and msgs[-1]["role"] == "user"
-    assert "Handbook documents:" in client.messages.plan_requests[0]["messages"][0]["content"]
+    msgs = client.requests[0]["messages"]
+    assert [m["role"] for m in msgs[:2]] == ["system", "user"] and msgs[-1]["role"] == "user"
+    assert "Handbook documents:" in client.plan_requests[0]["messages"][-1]["content"]
 
 
-class FakeOpenAI:
-    def __init__(self, reply):
-        self.requests = []
-        msg = SimpleNamespace(content=json.dumps(reply), refusal=None)
-        resp = SimpleNamespace(choices=[SimpleNamespace(message=msg, finish_reason="stop")])
-
-        def create(**kwargs):
-            if _is_planning(kwargs):
-                plan = SimpleNamespace(content=json.dumps(_echo_plan(kwargs)), refusal=None)
-                return SimpleNamespace(choices=[SimpleNamespace(message=plan, finish_reason="stop")])
-            self.requests.append(kwargs)
-            return resp
-        self.chat = SimpleNamespace(completions=SimpleNamespace(create=create))
-
-
-def test_openai_provider_same_verification(kb, settings):
-    from app.qa.llm import OpenAIAnswerer
-    reply = {"answerable": True, "answer": "16 days [1], or 30 [2].",
-             "citations": [{"passage_id": "P1", "quote": "Full-time employees accrue 16 days of annual leave per calendar year"},
-                           {"passage_id": "P1", "quote": "Employees get 30 days."}]}
-    fake = FakeOpenAI(reply)
-    qa = QAService(kb, settings, OpenAIAnswerer(settings, client=fake))
-    res = qa.ask("How many days of annual leave do I get?", as_of=TODAY, mode="llm")
-    assert res["mode"] == "llm" and res["model"] == settings.openai_model
-    assert [c["doc_id"] for c in res["citations"]] == ["hr-leave-policy-v2"]     # invented quote dropped
-    req = fake.requests[0]
-    assert req["messages"][0]["role"] == "system"
-    assert req["response_format"]["json_schema"]["strict"] is True
-
-
-def test_provider_selection(settings, monkeypatch):
-    from app.qa.llm import ClaudeAnswerer, OpenAIAnswerer, make_answerer
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+def test_llm_needs_an_openai_key(settings, monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    assert not LLMAnswerer(settings).available()
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
-    assert isinstance(make_answerer(settings), OpenAIAnswerer)
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
-    assert isinstance(make_answerer(settings), ClaudeAnswerer)
+    assert LLMAnswerer(settings).available()
 
 
 def test_unanswerable_from_llm(kb, settings):
@@ -206,6 +178,6 @@ def test_short_documents_are_passed_whole_to_the_llm(kb, settings):
               "citations": [{"passage_id": "P1", "quote": "City tier: Tier 2 | Maximum room rate per night: $200"}]}
     qa, client = make_service(kb, settings, [answer])
     res = qa.ask("What's the hotel limit per night in Seattle?", as_of=TODAY, mode="llm")
-    prompt = client.messages.requests[0]["messages"][-1]["content"]
+    prompt = client.requests[0]["messages"][-1]["content"]
     assert "Tier 2: Chicago, Seattle" in prompt and "Maximum room rate per night: $200" in prompt
     assert res["citations"][0]["section"].endswith("4.2 Hotels and daily spending limits")

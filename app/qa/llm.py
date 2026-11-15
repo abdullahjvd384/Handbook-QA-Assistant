@@ -1,4 +1,4 @@
-"""Grounded answer generation with an LLM (Claude or OpenAI).
+"""Grounded answer generation with an OpenAI model (gpt-5.5 by default).
 
 Two calls per question: a cheap search-planning call (standalone question + handbook
 vocabulary), then the answer. The model must return JSON: an answer with [n] markers and,
@@ -110,10 +110,7 @@ def _parse_json(text: str | None) -> dict:
 
 
 class LLMAnswerer:
-    """Provider-independent part: prompts, schema, follow-up rewrite, answer parsing.
-    Subclasses implement `_complete` for one provider's API."""
-
-    provider = "base"
+    """OpenAI Chat Completions with strict JSON-schema output: search planning and answering."""
 
     def __init__(self, settings: Settings, client=None):
         self.settings = settings
@@ -123,18 +120,43 @@ class LLMAnswerer:
 
     @property
     def model(self) -> str:
-        raise NotImplementedError
+        return self.settings.openai_model
 
     def available(self) -> bool:
-        raise NotImplementedError
+        return self._client is not None or bool(os.getenv("OPENAI_API_KEY"))
 
-    def _complete(self, system: str, messages: list[dict], schema: dict, effort: str) -> dict:
-        raise NotImplementedError
+    @property
+    def client(self):
+        if self._client is None:
+            import openai
+            self._client = openai.OpenAI(max_retries=2, timeout=60.0)
+        return self._client
 
     def _create(self, system: str, messages: list[dict], schema: dict, effort: str) -> dict:
+        import openai
+
         with self._lock:
             self.calls += 1
-        return self._complete(system, messages, schema, effort)
+        kwargs = dict(
+            model=self.model,
+            messages=[{"role": "system", "content": system}] + messages,
+            response_format={"type": "json_schema",
+                             "json_schema": {"name": "handbook_answer", "schema": schema, "strict": True}},
+        )
+        if self.model.startswith(("gpt-5", "o")):        # reasoning models take an effort setting
+            kwargs["reasoning_effort"] = effort
+        try:
+            resp = self.client.chat.completions.create(**kwargs)
+        except openai.APIStatusError as exc:
+            raise LLMError(f"OpenAI API error {exc.status_code}: {exc.message}") from exc
+        except openai.APIConnectionError as exc:
+            raise LLMError(f"Could not reach the OpenAI API: {exc}") from exc
+        choice = resp.choices[0]
+        if getattr(choice.message, "refusal", None):
+            raise LLMError("The model declined to answer.")
+        if choice.finish_reason == "length":
+            raise LLMError("The model response was truncated.")
+        return _parse_json(choice.message.content)
 
     def plan_search(self, question: str, history: list[dict], titles: list[str]) -> tuple[str, str]:
         """-> (standalone question, search query in handbook vocabulary)."""
@@ -161,96 +183,3 @@ class LLMAnswerer:
             answer=str(data.get("answer", "")).strip(),
             citations=[c for c in data.get("citations", []) if isinstance(c, dict)],
         )
-
-
-class ClaudeAnswerer(LLMAnswerer):
-    provider = "anthropic"
-
-    @property
-    def model(self) -> str:
-        return self.settings.llm_model
-
-    def available(self) -> bool:
-        return self._client is not None or bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
-
-    @property
-    def client(self):
-        if self._client is None:
-            import anthropic
-            self._client = anthropic.Anthropic(max_retries=2, timeout=60.0)
-        return self._client
-
-    def _complete(self, system: str, messages: list[dict], schema: dict, effort: str) -> dict:
-        import anthropic
-
-        kwargs = dict(
-            model=self.model,
-            max_tokens=16000,
-            system=system,
-            messages=messages,
-            output_config={"effort": effort, "format": {"type": "json_schema", "schema": schema}},
-        )
-        try:
-            resp = self.client.messages.create(**kwargs)
-        except anthropic.APIStatusError as exc:
-            raise LLMError(f"Claude API error {exc.status_code}: {exc.message}") from exc
-        except anthropic.APIConnectionError as exc:
-            raise LLMError(f"Could not reach the Claude API: {exc}") from exc
-        if resp.stop_reason == "refusal":
-            raise LLMError("The model declined to answer.")
-        if resp.stop_reason == "max_tokens":
-            raise LLMError("The model response was truncated.")
-        return _parse_json(next((b.text for b in resp.content if getattr(b, "type", "") == "text"), None))
-
-
-class OpenAIAnswerer(LLMAnswerer):
-    """OpenAI Chat Completions with strict JSON-schema output."""
-
-    provider = "openai"
-
-    @property
-    def model(self) -> str:
-        return self.settings.openai_model
-
-    def available(self) -> bool:
-        return self._client is not None or bool(os.getenv("OPENAI_API_KEY"))
-
-    @property
-    def client(self):
-        if self._client is None:
-            import openai
-            self._client = openai.OpenAI(max_retries=2, timeout=60.0)
-        return self._client
-
-    def _complete(self, system: str, messages: list[dict], schema: dict, effort: str) -> dict:
-        import openai
-
-        kwargs = dict(
-            model=self.model,
-            messages=[{"role": "system", "content": system}] + messages,
-            response_format={"type": "json_schema",
-                             "json_schema": {"name": "handbook_answer", "schema": schema, "strict": True}},
-        )
-        if self.model.startswith(("gpt-5", "o")):        # reasoning models take an effort setting
-            kwargs["reasoning_effort"] = effort
-        try:
-            resp = self.client.chat.completions.create(**kwargs)
-        except openai.APIStatusError as exc:
-            raise LLMError(f"OpenAI API error {exc.status_code}: {exc.message}") from exc
-        except openai.APIConnectionError as exc:
-            raise LLMError(f"Could not reach the OpenAI API: {exc}") from exc
-        choice = resp.choices[0]
-        if getattr(choice.message, "refusal", None):
-            raise LLMError("The model declined to answer.")
-        if choice.finish_reason == "length":
-            raise LLMError("The model response was truncated.")
-        return _parse_json(choice.message.content)
-
-
-def make_answerer(settings: Settings) -> LLMAnswerer:
-    """HANDBOOK_LLM_PROVIDER if set, else whichever API key is present (Anthropic first)."""
-    provider = settings.llm_provider
-    if provider == "auto":
-        has_anthropic = bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
-        provider = "openai" if (os.getenv("OPENAI_API_KEY") and not has_anthropic) else "anthropic"
-    return OpenAIAnswerer(settings) if provider == "openai" else ClaudeAnswerer(settings)

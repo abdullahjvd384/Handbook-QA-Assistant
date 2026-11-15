@@ -5,7 +5,7 @@
 1. One parser per format keeps the author's structure (headings, bullets, table rows, Word body order) in a canonical text with a character offset for every block.
 2. A **lifecycle** (in force / superseded / deprecated / not yet effective) is computed per document for the question's date, from the manifest checked against each file's own header.
 3. Search fuses BM25 (plus a small thesaurus and typo correction) with `bge-small-en-v1.5` vectors in Qdrant, then re-ranks so stale versions sit below current ones.
-4. An LLM (OpenAI `gpt-5.5`; Claude also supported) restates the question in handbook vocabulary, then answers in JSON. Every quote is located in the source or dropped. Without a key, an extractive answerer quotes the best sentences or abstains.
+4. An LLM (OpenAI `gpt-5.5`) restates the question in handbook vocabulary, then answers in JSON. Every quote is located in the source or dropped. Without a key, an extractive answerer quotes the best sentences or abstains.
 5. FastAPI serves `/api/ask` and `/api/documents/{id}` and a chat page. Citations open the passage highlighted, on the original PDF page for PDFs. Uploads are indexed immediately.
 
 ## 2. Key decisions
@@ -64,7 +64,6 @@ There was no provided dev set; this is my dev set (69 questions). Command: `pyth
 - **Model and calls:** OpenAI `gpt-5.5` with `reasoning_effort` medium, 2 calls per question. The full run made 212 answer calls and 200 judge calls (judge also `gpt-5.5`).
 - **Gaps:**
   - The extractive paraphrase judge did not run because the API credits ran out.
-  - Claude is tested with fake clients only; my Anthropic key was rejected.
   - LLM latency varies with the API: held-out p50 was 3.1 s in one run and 10.5 s in this one.
 
 ## 6. What I would do with one more week

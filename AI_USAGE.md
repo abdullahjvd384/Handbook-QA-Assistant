@@ -13,7 +13,7 @@
 | Reading the 64 documents and listing contradictions, stale versions, missing references and parsing traps | Claude Code | All kept (DECISIONS.md section 3). Each one checked against the source file. |
 | Parsers for six formats, lifecycle logic, structure-aware chunking | Claude Code | Kept after fixes found by reading the parsed output (Word table order, PDF lists, wrapped PDF headers). Unit tests guard each fix. |
 | Hybrid search (BM25 + `bge-small` in Qdrant), RRF fusion, lifecycle re-rank, optional cross-encoder | Claude Code | Kept. Every component is justified by an ablation row, not by default. The re-ranker stays off because it measured no better. |
-| LLM answering (OpenAI and Claude), search planning, quote verification | Claude Code | Kept. Invented quotes cannot reach the user (verified offsets), and the first LLM run's failures drove search planning. |
+| LLM answering (OpenAI), search planning, quote verification | Claude Code | Kept. Invented quotes cannot reach the user (verified offsets), and the first LLM run's failures drove search planning. |
 | Extractive no-key answerer | Claude Code | Kept after eval-driven iterations. One idea was removed (below). |
 | Eval sets (106 questions) and harness | Claude Code | Kept. The held-out set was written before tuning. Regexes were checked against the documents. |
 | Production RAG research: architecture, vector DB, retrieval and evaluation metrics | ChatGPT | Used as a review checklist. Applied: `bge-small`, a measured re-ranker experiment, `.env.example`, precision@5, the original-PDF viewer. Not adopted, with reasons: fixed 600-token chunks with overlap, pgvector, React. |
@@ -44,7 +44,7 @@ I didn't write code by hand. My part was direction, research, testing and decisi
   - which improvements came first: embeddings, a re-ranker experiment, the PDF viewer;
   - that the eval needed recall@k, nDCG and an LLM-as-judge;
   - that reviewer-style edge cases had to be handled and tested.
-* **LLM mode.** I decided to run with a real LLM and supplied the keys. The Anthropic key was rejected, so measured results use OpenAI `gpt-5.5`.
+* **LLM mode.** I decided to run with a real LLM and chose OpenAI `gpt-5.5`; I supplied the key. Claude support was removed at the end to keep one provider.
 * **Submission.** I decided what goes into the repository and reviewed these documents.
 
 **What I did not originate:** the data problems in DECISIONS.md section 3, including the stale and superseded versions handled by the lifecycle logic, were found by Claude Code in its first pass, before my research. So were the eval questions and the bug fixes in section 4. I reviewed them.

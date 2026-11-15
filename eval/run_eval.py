@@ -2,7 +2,7 @@
 
     python -m eval.run_eval                       # in-process, answer mode from env (auto)
     python -m eval.run_eval --mode extractive     # force the no-LLM answerer
-    python -m eval.run_eval --mode llm            # LLM (needs OPENAI_API_KEY or ANTHROPIC_API_KEY)
+    python -m eval.run_eval --mode llm            # LLM (needs OPENAI_API_KEY)
     python -m eval.run_eval --base-url http://localhost:8000   # through the HTTP API
     python -m eval.run_eval --ablation            # also compare retrieval configurations
 

@@ -12,7 +12,7 @@ from app.ingest.pipeline import sentence_spans
 from app.models import Citation
 from app.qa import extractive
 from app.qa.context import Passage, build_passages, fuse_rankings, with_current_versions
-from app.qa.llm import LLMAnswerer, make_answerer
+from app.qa.llm import LLMAnswerer
 from app.qa.verify import locate_quote
 from app.search.index import KnowledgeBase, SearchConfig
 
@@ -28,7 +28,7 @@ _SMALL_TALK = re.compile(
     r"thanks?|thank you( very much| so much)?|thx|ty|cheers|great|ok|okay|cool|nice|"
     r"bye|goodbye|see you|"
     r"help|who are you|what are you|what can you do|what do you do|how does this work)"
-    r"( there| claude| bot| assistant)?", re.I)
+    r"( there| bot| assistant)?", re.I)
 _THANKS = re.compile(r"(thanks?|thank you|thx|ty|cheers|great|ok|okay|cool|nice|bye|goodbye|see you)\b", re.I)
 HELLO = ("Hi! I answer questions about the Northgate Robotics handbook (HR, IT, engineering, finance and travel "
          "policies), and every answer quotes the passage it comes from. Try: \"How many days of annual leave do I get?\"")
@@ -40,7 +40,7 @@ class QAService:
     def __init__(self, kb: KnowledgeBase, settings: Settings, answerer: LLMAnswerer | None = None):
         self.kb = kb
         self.settings = settings
-        self.llm = answerer or make_answerer(settings)
+        self.llm = answerer or LLMAnswerer(settings)
 
     def llm_available(self) -> bool:
         return self.llm.available()
@@ -52,7 +52,7 @@ class QAService:
         if mode not in {"llm", "extractive"}:
             raise ValueError("mode must be 'auto', 'llm' or 'extractive'")
         if mode == "llm" and not self.llm_available():
-            raise ValueError("LLM mode requested but no ANTHROPIC_API_KEY or OPENAI_API_KEY is configured")
+            raise ValueError("LLM mode requested but OPENAI_API_KEY is not configured")
         return mode
 
     # ------------------------------------------------------------------
@@ -84,7 +84,7 @@ class QAService:
             try:
                 titles = sorted(d.meta.title for d in self.kb.snapshot.docs.values())
                 standalone, search_query = self.llm.plan_search(question, history, titles)
-            except Exception as exc:  # noqa: BLE001 - any provider failure degrades to the heuristic
+            except Exception as exc:  # noqa: BLE001 - any API failure degrades to the heuristic
                 log.warning("search planning failed: %s", exc)
                 warnings.append(f"search planning failed ({_short(exc)}); used keyword heuristic")
                 if history:
@@ -115,7 +115,7 @@ class QAService:
         if mode_used == "llm" and passages:
             try:
                 result = self._answer_llm(question if not history else standalone, history, passages, as_of, missing)
-            except Exception as exc:  # noqa: BLE001 - any provider failure falls back to extractive
+            except Exception as exc:  # noqa: BLE001 - any API failure falls back to extractive
                 log.warning("LLM answer failed: %s", exc)
                 warnings.append(f"LLM answer failed ({_short(exc)}); fell back to extractive answer")
                 mode_used = "extractive (fallback)"
