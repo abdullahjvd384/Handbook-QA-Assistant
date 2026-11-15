@@ -12,9 +12,54 @@ The handbook mixes Markdown, CSV, plain text, HTML, PDF and Word files. Some doc
 * **Web page:** chat with clickable citations and follow-up questions. The document viewer highlights the cited passage, on the **original PDF page** for PDFs (PDF.js, bundled, works offline) and in the extracted text for every format. Document upload is searchable immediately, with no restart.
 * **Evaluation:** 106 hand-written questions in three sets (dev, held-out, paraphrase), a scoring script with retrieval metrics and an LLM judge, and a retrieval ablation. All results: [eval/RESULTS.md](eval/RESULTS.md).
 
-**Live demo:** https://handbook-qa.lemonwave-97703e6c.centralindia.azurecontainerapps.io (API docs at `/docs`; it may take a few seconds to wake up; 30 questions per hour per visitor). See section 8.
+**Live demo:** https://handbook-qa.lemonwave-97703e6c.centralindia.azurecontainerapps.io (API docs at [`/docs`](https://handbook-qa.lemonwave-97703e6c.centralindia.azurecontainerapps.io/docs)).
+
+* It runs on Azure Container Apps and may take a few seconds to wake up.
+* It is limited to 30 questions per hour per visitor.
+* To save API credits it uses `gpt-5.4-mini`; the results below were measured with `gpt-5.5`. See section 8.
 
 Design choices and results are in [DECISIONS.md](DECISIONS.md). How AI tools were used is in [AI_USAGE.md](AI_USAGE.md).
+
+**Contents:** [How it works](#how-it-works) · [Brief checklist](#brief-checklist) · [1. Install](#1-install) · [2. Tests](#2-run-the-tests) · [3. Run it](#3-run-it) · [4. Web app](#4-start-the-web-app) · [5. Question endpoint](#5-question-endpoint-for-external-evaluation) · [6. Evaluation](#6-evaluation) · [7. Configuration](#7-configuration) · [8. Deploy](#8-deploy-azure-container-apps) · [9. Layout](#9-layout) · [10. Known limitations](#10-known-limitations)
+
+## How it works
+
+```
+INGEST (at startup, and for each upload)
+  .md .csv .txt .html .pdf .docx + manifest.json
+   ├─ one parser per format ─► structural blocks (heading, paragraph, list item, table row, page)
+   ├─ canonical text per document, with the character offsets of every block
+   ├─ lifecycle per document for a given date: in force / superseded / deprecated / not yet effective
+   ├─ structure-aware chunks: a table row, a bullet, or a short section, indexed with title + heading path
+   └─ BM25 index (in memory) + bge-small vectors (Qdrant, synced by content hash)
+
+ANSWER (per question)
+  question (+ conversation history)
+   ├─ small-talk check, typo correction
+   ├─ LLM call 1: standalone question + search query in handbook vocabulary
+   ├─ hybrid search: BM25 + dense, merged with Reciprocal Rank Fusion
+   ├─ lifecycle re-rank: stale versions pushed down, the current version always included
+   ├─ LLM call 2: answer as strict JSON, with [n] markers and a verbatim quote per citation
+   ├─ every quote located in the source text ─► offsets for highlighting; unverifiable quotes dropped
+   └─ no API key, an API error, or no verifiable quote ─► extractive answer (quotes or abstains)
+```
+
+Why each piece is there, and what was measured against it, is in DECISIONS.md section 2 and the ablation in section 6.
+
+## Brief checklist
+
+| The brief asks for | Where it is |
+|---|---|
+| 1. Ingestion of all formats and the manifest | `app/ingest/`. `python -m app.ingest -v` prints the chunks, each document's lifecycle and the data-quality findings (section 3). |
+| 2. Search | `app/search/`: hybrid BM25 + `bge-small` in Qdrant with a lifecycle re-rank. Justified in DECISIONS.md. |
+| 3. Answers with citations | Every citation names the document and section and quotes the exact passage, with offsets (section 5). |
+| 4. Own evaluation set and script | 106 questions in `eval/*.jsonl`, `python -m eval.run_eval`, results in [eval/RESULTS.md](eval/RESULTS.md) (section 6). |
+| 4. Question endpoint documented | `POST /api/ask` (section 5). |
+| 5. Web app with clickable, highlighted citations | FastAPI + chat page. A citation opens the document with the passage highlighted, on the original page for PDFs (section 4). |
+| Stretch: two search approaches or re-ranking, showing whether it helped | Hybrid search plus an optional cross-encoder; an 11-configuration ablation (section 6). |
+| Stretch: follow-up questions | `history` in `POST /api/ask`; the LLM rewrites the question to stand alone (section 5). |
+| Stretch: upload, answerable straight away | The **Upload** button / `POST /api/documents`; no restart (section 5). |
+| DECISIONS.md and AI_USAGE.md | Repository root. |
 
 ---
 
@@ -177,6 +222,7 @@ Errors:
 
 * `422`: the request failed validation (for example an empty or blank question, or more than 2000 characters).
 * `400`: `mode: "llm"` was requested but no API key is configured.
+* `429`: the per-visitor rate limit was reached, when `HANDBOOK_RATE_LIMIT` is set (on the live demo, 30 per hour). The `Retry-After` header says when to try again.
 * The LLM path never returns `500`: any provider error (timeout, rate limit, refusal, invalid JSON, SDK exception) falls back to the extractive answer, with a warning.
 
 Interactive API docs are at <http://localhost:8000/docs>.
@@ -209,6 +255,7 @@ Each row was probed through the running API and is covered by a test (`tests/`).
 | Upload: `supersedes` an unknown document; `../` in the file name | `400`; the path is stripped from the name. |
 | Upload: HTML with `<script>` | Scripts and styles are dropped at ingest; the page renders all text with `textContent`, never `innerHTML`. |
 | Questions while an upload is being indexed | The index is rebuilt off to the side and swapped in atomically; uploads are serialised by a lock. |
+| Too many questions from one visitor (public deployment) | `429` with `Retry-After`. The limit counts the address the hosting proxy appends to `X-Forwarded-For`, so a forged header can't reset it. |
 
 ### Other endpoints
 
@@ -225,7 +272,7 @@ Each row was probed through the running API and is covered by a test (`tests/`).
 
 ```bash
 python -m eval.run_eval                                    # dev set (69 questions), answer mode auto
-python -m eval.run_eval --mode extractive --ablation       # also compare 6 retrieval configurations
+python -m eval.run_eval --mode extractive --ablation       # also compare 11 retrieval configurations
 python -m eval.run_eval --questions eval/heldout.jsonl     # held-out set (25), written before tuning
 python -m eval.run_eval --questions eval/paraphrase.jsonl  # paraphrase probe (12)
 python -m eval.run_eval --mode llm                         # LLM answers (needs OPENAI_API_KEY)
@@ -365,3 +412,12 @@ data/uploads/         documents uploaded through the UI (persisted across restar
 docker-compose.yml    Qdrant vector database (local)
 Dockerfile            production image (model and chunk vectors baked in), see section 8
 ```
+
+## 10. Known limitations
+
+* **The evaluation set is my own.** 106 questions, written by me. The held-out set informed two late fixes, so it is no longer blind (DECISIONS.md section 4). Your own questions are the real test.
+* **Extractive mode is a safety net, not the main mode.** It scores 33.3% on casually worded questions, against 100% in LLM mode, because it can't infer.
+* **The live demo trades quality for cost.** `gpt-5.4-mini` with low effort can give shorter answers than the measured `gpt-5.5`, for example leaving out an upcoming policy change.
+* **No authentication or access control.** Anyone with the link can ask and upload. Demo uploads disappear when the app scales to zero.
+* **Built for about 60 documents.** BM25 and the document texts are rebuilt in memory at startup. Scaling up would need BM25 inside Qdrant and incremental indexing (DECISIONS.md section 6).
+* **No OCR.** Scanned PDFs are rejected with a clear message.
