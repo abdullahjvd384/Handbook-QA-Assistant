@@ -69,15 +69,10 @@ class Settings:
     llm_model: str = field(default_factory=lambda: os.getenv("HANDBOOK_LLM_MODEL", "claude-opus-5-5"))
     openai_model: str = field(default_factory=lambda: os.getenv("HANDBOOK_OPENAI_MODEL", "gpt-5.5"))
     llm_effort: str = field(default_factory=lambda: os.getenv("HANDBOOK_LLM_EFFORT", "medium"))
-    llm_fallbacks: bool = field(default_factory=lambda: _env_bool("HANDBOOK_LLM_FALLBACKS", True))
     max_upload_bytes: int = 10 * 1024 * 1024
 
     def today(self) -> date:
         return self.today_override or date.today()
-
-
-def llm_credentials_present() -> bool:
-    return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN") or os.getenv("OPENAI_API_KEY"))
 
 
 settings = Settings()

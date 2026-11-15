@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import threading
@@ -17,8 +18,6 @@ from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
 from typing import Literal
-
-import hashlib
 
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -95,6 +94,15 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
     def _qa() -> QAService:
         return state["qa"]
 
+    def _doc_or_404(doc_id: str):
+        doc = _kb().snapshot.docs.get(doc_id)
+        if doc is None:
+            raise HTTPException(status_code=404, detail=f"No document with id {doc_id!r}")
+        return doc
+
+    def _source_dir(doc) -> Path:
+        return settings.uploads_dir if doc.meta.source == "upload" else settings.corpus_dir
+
     # -- API -------------------------------------------------------------------
 
     @app.get("/api/health")
@@ -142,11 +150,8 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
 
     @app.get("/api/documents/{doc_id}")
     def get_document(doc_id: str, as_of: date | None = None):
-        k = _kb()
-        doc = k.snapshot.docs.get(doc_id)
-        if doc is None:
-            raise HTTPException(status_code=404, detail=f"No document with id {doc_id!r}")
-        lc = k.lifecycles(as_of or settings.today())[doc_id]
+        doc = _doc_or_404(doc_id)
+        lc = _kb().lifecycles(as_of or settings.today())[doc_id]
         return {
             **_meta_json(doc, lc),
             "text": doc.text,
@@ -156,10 +161,8 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
 
     @app.get("/api/documents/{doc_id}/file")
     def get_document_file(doc_id: str):
-        doc = _kb().snapshot.docs.get(doc_id)
-        if doc is None:
-            raise HTTPException(status_code=404, detail=f"No document with id {doc_id!r}")
-        base = settings.uploads_dir if doc.meta.source == "upload" else settings.corpus_dir
+        doc = _doc_or_404(doc_id)
+        base = _source_dir(doc)
         path = (base / doc.meta.path).resolve()
         if base.resolve() not in path.parents or not path.exists():
             raise HTTPException(status_code=404, detail="Original file not available")
@@ -188,8 +191,7 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
         k = _kb()
         digest = hashlib.sha256(data).hexdigest()
         for d in k.snapshot.docs.values():
-            base = settings.uploads_dir if d.meta.source == "upload" else settings.corpus_dir
-            src = base / d.meta.path
+            src = _source_dir(d) / d.meta.path
             if src.exists() and src.stat().st_size == len(data) and hashlib.sha256(src.read_bytes()).hexdigest() == digest:
                 raise HTTPException(status_code=409, detail=f"This file is already in the handbook as {d.doc_id!r} ({d.meta.title})")
         if supersedes and supersedes not in k.snapshot.docs:

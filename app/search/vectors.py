@@ -74,7 +74,7 @@ class QdrantVectorIndex:
         self.model_name = model_name
         self.collection = collection
         self.url = url
-        self.client = QdrantClient(url=url, timeout=10)
+        self.client = QdrantClient(url=url, timeout=10, check_compatibility=False)  # reachability is checked below
         self.client.get_collections()                       # fail fast if the server isn't reachable
         self.dim = model.dim
         self._ensure_collection()

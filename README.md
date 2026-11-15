@@ -10,7 +10,7 @@ The handbook mixes Markdown, CSV, plain text, HTML, PDF and Word files. Some doc
   * With an API key (`OPENAI_API_KEY` for `gpt-5.5`, or `ANTHROPIC_API_KEY` for `claude-opus-5-5`), an LLM first restates the question in handbook vocabulary for searching, then writes the answer with structured output. Every quote is checked against the source text, and unverifiable quotes are dropped.
   * With no key, a deterministic extractive answerer quotes the best-matching sentences and abstains when unsure. The backend always works.
 * **Web page:** chat with clickable citations and follow-up questions. The document viewer highlights the cited passage, on the **original PDF page** for PDFs (PDF.js, bundled, works offline) and in the extracted text for every format. Document upload is searchable immediately, with no restart.
-* **Evaluation:** 106 hand-written questions in three sets (dev, held-out, paraphrase), a scoring script, and a retrieval ablation.
+* **Evaluation:** 106 hand-written questions in three sets (dev, held-out, paraphrase), a scoring script with retrieval metrics and an LLM judge, and a retrieval ablation. All results: [eval/RESULTS.md](eval/RESULTS.md).
 
 Design choices and results are in [DECISIONS.md](DECISIONS.md). How AI tools were used is in [AI_USAGE.md](AI_USAGE.md).
 
@@ -21,7 +21,8 @@ Design choices and results are in [DECISIONS.md](DECISIONS.md). How AI tools wer
 Requires **Python 3.11–3.13**. It was developed on 3.12; Python 3.15 lacks wheels for some dependencies.
 
 ```bash
-cd handbook-qa
+git clone https://github.com/abdullahjvd384/Handbook-QA-Assistant.git
+cd Handbook-QA-Assistant
 python -m venv .venv
 # Windows:      .venv\Scripts\activate
 # macOS/Linux:  source .venv/bin/activate
@@ -64,7 +65,8 @@ The tests cover:
 * retrieval, including the stale-version re-rank;
 * the extractive answerer and quote verification;
 * the LLM path (OpenAI and Anthropic), using fake clients, so dropped quotes, fallback, search planning and whole-document passages are all exercised;
-* the HTTP API, including upload and immediate querying.
+* the HTTP API, including upload and immediate querying, and the edge cases in section 5;
+* the eval harness's own arithmetic (recall, nDCG, judge aggregation).
 
 ## 3. Run it
 
@@ -287,7 +289,6 @@ The ablation (`--ablation`) compares 11 retrieval configurations: BM25 / dense /
 | `HANDBOOK_OPENAI_MODEL` | `gpt-5.5` | OpenAI model ID. |
 | `HANDBOOK_LLM_MODEL` | `claude-opus-5-5` | Claude model ID. |
 | `HANDBOOK_LLM_EFFORT` | `medium` | `low` / `medium` / `high` (Claude effort / OpenAI `reasoning_effort`). |
-| `HANDBOOK_LLM_FALLBACKS` | `1` | Claude only: server-side refusal fallback (beta `server-side-fallback-2026-07-01`). |
 | `HANDBOOK_TODAY` | real date | Override "today" for lifecycle decisions. |
 | `HANDBOOK_DENSE` | `1` | Set `0` to disable dense search (BM25 only, fully offline). |
 | `HANDBOOK_DENSE_MODEL` | `fastembed:BAAI/bge-small-en-v1.5` | Embedding model, `fastembed:<name>` or `model2vec:<name>`. Changing it re-embeds the Qdrant collection automatically. |

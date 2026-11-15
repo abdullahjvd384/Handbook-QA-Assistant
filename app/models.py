@@ -47,10 +47,6 @@ class Lifecycle:
     superseded_by: str | None = None
     note: str = ""
 
-    @property
-    def is_current(self) -> bool:
-        return self.state == "in_force"
-
 
 @dataclass
 class Document:

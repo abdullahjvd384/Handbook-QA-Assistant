@@ -38,6 +38,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from eval.judge import Judge, summarize_judgements  # noqa: E402 - needs ROOT on sys.path
+
 DEFAULT_AS_OF = "2026-11-14"   # pinned so results don't change when 2027 policies take effect
 
 
@@ -265,8 +267,6 @@ def ablation(client, questions: list[dict], as_of_default: str) -> list[dict]:
     """Retrieval configurations x embedding models x re-rankers, answered in extractive mode
     (deterministic, no LLM cost). Each embedding model gets its own in-memory index so the
     comparison never touches the app's Qdrant collection."""
-    import time
-
     from app.config import Settings
     from app.qa.extractive import followup_query
     from app.qa.service import QAService
@@ -335,8 +335,6 @@ def ablation(client, questions: list[dict], as_of_default: str) -> list[dict]:
 def regrade(questions: list[dict], path: Path) -> int:
     """Grading is deterministic given the answer text, so a corrected regex can be re-applied to a
     saved run without asking the model again. The file records which verdicts changed."""
-    from eval.judge import summarize_judgements
-
     data = json.loads(path.read_text(encoding="utf-8"))
     byid = {q["id"]: q for q in questions}
     changed = []
@@ -387,10 +385,7 @@ def main(argv: list[str] | None = None) -> int:
         wanted = set(args.only.split(","))
         questions = [q for q in questions if q["id"] in wanted]
     client = HttpClient(args.base_url, args.mode) if args.base_url else InProcessClient(args.mode)
-    judge = None
-    if args.judge:
-        from eval.judge import Judge
-        judge = Judge(args.judge_model)
+    judge = Judge(args.judge_model) if args.judge else None
 
     rows = []
     answer_models: set[str] = set()
@@ -453,7 +448,6 @@ def main(argv: list[str] | None = None) -> int:
 
     judge_summary = None
     if judge is not None:
-        from eval.judge import summarize_judgements
         judge_summary = summarize_judgements(rows)
         if judge_summary:
             judge_summary = {"judge_model": judge.label, "judge_calls": judge.calls, **judge_summary}

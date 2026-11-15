@@ -12,6 +12,7 @@ lock, so requests in flight never see a half-built index and nothing needs a res
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 import threading
@@ -119,7 +120,6 @@ class KnowledgeBase:
                                                   thesaurus_words()))
 
     def _load_uploads(self, report: list[str]) -> list[Document]:
-        import json
         manifest = self.settings.uploads_dir / "manifest.json"
         if not manifest.exists():
             return []

@@ -1,9 +1,9 @@
 """Grounded answer generation with an LLM (Claude or OpenAI).
 
-One call per question (two for a follow-up: a cheap rewrite into a standalone question
-first). The model must return JSON: an answer with [n] markers and, for each n, the
-passage id and a verbatim quote. Quotes are verified afterwards; unverifiable ones are
-dropped, and if nothing verifiable is left the service falls back to extractive mode.
+Two calls per question: a cheap search-planning call (standalone question + handbook
+vocabulary), then the answer. The model must return JSON: an answer with [n] markers and,
+for each n, the passage id and a verbatim quote. Quotes are verified afterwards; unverifiable
+ones are dropped, and if nothing verifiable is left the service falls back to extractive mode.
 """
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ from app.qa.context import Passage
 
 log = logging.getLogger(__name__)
 
-FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
 SYSTEM_PROMPT = """You are the Northgate Robotics handbook assistant. Employees ask you questions; you answer only from the handbook passages supplied with each question.
 
@@ -192,12 +191,7 @@ class ClaudeAnswerer(LLMAnswerer):
             output_config={"effort": effort, "format": {"type": "json_schema", "schema": schema}},
         )
         try:
-            if self.settings.llm_fallbacks:
-                # Server-side refusal fallback: if a safety classifier declines, the API
-                # re-runs the request on a fallback model within the same call.
-                resp = self.client.beta.messages.create(betas=[FALLBACK_BETA], fallbacks="default", **kwargs)
-            else:
-                resp = self.client.messages.create(**kwargs)
+            resp = self.client.messages.create(**kwargs)
         except anthropic.APIStatusError as exc:
             raise LLMError(f"Claude API error {exc.status_code}: {exc.message}") from exc
         except anthropic.APIConnectionError as exc:

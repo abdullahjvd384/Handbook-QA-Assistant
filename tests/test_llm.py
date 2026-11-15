@@ -48,7 +48,6 @@ class FakeMessages:
 class FakeClient:
     def __init__(self, replies):
         self.messages = FakeMessages(replies)
-        self.beta = SimpleNamespace(messages=self.messages)
 
 
 def make_service(kb, settings, replies):

@@ -15,7 +15,7 @@ from .conftest import TODAY
 def qdrant_settings(tmp_path_factory):
     try:
         from qdrant_client import QdrantClient
-        client = QdrantClient(url="http://localhost:6333", timeout=3)
+        client = QdrantClient(url="http://localhost:6333", timeout=3, check_compatibility=False)
         client.get_collections()
     except Exception:  # noqa: BLE001
         pytest.skip("Qdrant not running (docker compose up -d)")
