@@ -2,7 +2,7 @@
 
     python -m eval.run_eval                       # in-process, answer mode from env (auto)
     python -m eval.run_eval --mode extractive     # force the no-LLM answerer
-    python -m eval.run_eval --mode llm            # Claude (needs ANTHROPIC_API_KEY)
+    python -m eval.run_eval --mode llm            # LLM (needs OPENAI_API_KEY or ANTHROPIC_API_KEY)
     python -m eval.run_eval --base-url http://localhost:8000   # through the HTTP API
     python -m eval.run_eval --ablation            # also compare retrieval configurations
 
@@ -16,12 +16,18 @@ What is measured (per question, then aggregated overall and per category):
   * stale primary     - the first citation comes from a superseded/deprecated document
                         when a current one exists (lower is better).
   * retrieval hit@k / MRR - a gold document appears among the top-k retrieved documents.
+  * recall@k              - share of the gold documents that appear among the top-k retrieved
+                            documents (differs from hit@k on questions with several gold documents).
+  * precision@5           - share of the top-5 retrieved chunks that come from a gold or acceptable document.
+  * nDCG@5                - rank-weighted retrieval quality over documents: a gold document at
+                            rank 1 counts fully, lower ranks count less (binary relevance).
   * stale above current   - a stale document is ranked above the current gold one.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import time
@@ -132,6 +138,11 @@ def retrieval_metrics(q: dict, ranked_docs: list[str], chunk_docs: list[str] | N
     rank = next((i + 1 for i, d in enumerate(ranked_docs) if d in gold), None)
     out = {f"hit@{k}": rank is not None and rank <= k for k in (1, 3, 5)}
     out["rr"] = 1.0 / rank if rank else 0.0
+    for k in (3, 5):
+        out[f"recall@{k}"] = len(gold & set(ranked_docs[:k])) / len(gold)
+    dcg = sum(1 / math.log2(i + 2) for i, d in enumerate(ranked_docs[:5]) if d in gold)
+    idcg = sum(1 / math.log2(i + 2) for i in range(min(len(gold), 5)))
+    out["ndcg@5"] = dcg / idcg
     top5 = (chunk_docs if chunk_docs is not None else ranked_docs)[:5]
     if top5:
         relevant = gold | set(q["acceptable_docs"])
@@ -142,17 +153,25 @@ def retrieval_metrics(q: dict, ranked_docs: list[str], chunk_docs: list[str] | N
     return out
 
 
+def answer_verdict(q: dict, text: str, answerable: bool) -> dict:
+    """The regex part of grading: depends only on the answer text and its answerable flag."""
+    inc = _matches(q["must_include"], text)
+    exc = _matches(q["must_not_include"], text)
+    if q["answerable"]:
+        correct = answerable and all(inc) and not any(exc)
+    else:
+        accepted = bool(q["accept_if"]) and all(_matches(q["accept_if"], text))
+        correct = (not answerable or accepted) and not any(exc)
+    return {"correct": correct,
+            "missing": [p for p, m in zip(q["must_include"], inc) if not m],
+            "forbidden_found": [p for p, m in zip(q["must_not_include"], exc) if m]}
+
+
 def grade(q: dict, res: dict, client) -> dict:
     text = res["answer"]
     ok_docs = set(q["supporting_docs"]) | set(q["acceptable_docs"])
     cites = res["citations"]
-    inc = _matches(q["must_include"], text)
-    exc = _matches(q["must_not_include"], text)
-    if q["answerable"]:
-        correct = res["answerable"] and all(inc) and not any(exc)
-    else:
-        accepted = bool(q["accept_if"]) and all(_matches(q["accept_if"], text))
-        correct = (not res["answerable"] or accepted) and not any(exc)
+    verdict = answer_verdict(q, text, res["answerable"])
 
     verified = []
     for c in cites:
@@ -163,9 +182,7 @@ def grade(q: dict, res: dict, client) -> dict:
 
     g = {
         "id": q["id"], "category": q["category"], "question": q["question"], "answerable_expected": q["answerable"],
-        "answerable_got": res["answerable"], "correct": correct,
-        "missing": [p for p, m in zip(q["must_include"], inc) if not m],
-        "forbidden_found": [p for p, m in zip(q["must_not_include"], exc) if m],
+        "answerable_got": res["answerable"], **verdict,
         "citations": [c["doc_id"] for c in cites],
         "citation_ok": [c["doc_id"] in ok_docs for c in cites],
         "quote_verified": verified,
@@ -179,7 +196,9 @@ def grade(q: dict, res: dict, client) -> dict:
         if q["stale_docs"] and cites:
             g["stale_primary"] = cites[0]["doc_id"] in q["stale_docs"] and cites[0]["doc_id"] not in q["supporting_docs"]
     retrieved = res.get("retrieved", [])
-    g.update(retrieval_metrics(q, unique_docs(retrieved), [r["doc_id"] for r in retrieved]))
+    ranked = unique_docs(retrieved)
+    g["retrieved_docs"] = ranked
+    g.update(retrieval_metrics(q, ranked, [r["doc_id"] for r in retrieved]))
     return g
 
 
@@ -207,6 +226,9 @@ def summarize(rows: list[dict]) -> dict:
         "hit@3": _mean(r["hit@3"] for r in rows if "hit@3" in r),
         "hit@5": _mean(r["hit@5"] for r in rows if "hit@5" in r),
         "mrr": _mean(r["rr"] for r in rows if "rr" in r),
+        "recall@3": _mean(r["recall@3"] for r in rows if "recall@3" in r),
+        "recall@5": _mean(r["recall@5"] for r in rows if "recall@5" in r),
+        "ndcg@5": _mean(r["ndcg@5"] for r in rows if "ndcg@5" in r),
         "precision@5": _mean(r["precision@5"] for r in rows if "precision@5" in r),
         "stale_above_current": _mean(r["stale_above_current"] for r in rows if "stale_above_current" in r),
         "latency_p50_ms": lat[len(lat) // 2] if lat else None,
@@ -297,6 +319,9 @@ def ablation(client, questions: list[dict], as_of_default: str) -> list[dict]:
             "hit@3": _mean(r["hit@3"] for r in rows if "hit@3" in r),
             "hit@5": _mean(r["hit@5"] for r in rows if "hit@5" in r),
             "mrr": _mean(r["rr"] for r in rows if "rr" in r),
+            "recall@3": _mean(r["recall@3"] for r in rows if "recall@3" in r),
+            "recall@5": _mean(r["recall@5"] for r in rows if "recall@5" in r),
+            "ndcg@5": _mean(r["ndcg@5"] for r in rows if "ndcg@5" in r),
             "precision@5": _mean(r["precision@5"] for r in rows if "precision@5" in r),
             "stale_above_current": _mean(r["stale_above_current"] for r in rows if "stale_above_current" in r),
             "extractive_accuracy": _mean(r["correct"] for r in rows),
@@ -306,6 +331,37 @@ def ablation(client, questions: list[dict], as_of_default: str) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+
+def regrade(questions: list[dict], path: Path) -> int:
+    """Grading is deterministic given the answer text, so a corrected regex can be re-applied to a
+    saved run without asking the model again. The file records which verdicts changed."""
+    from eval.judge import summarize_judgements
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    byid = {q["id"]: q for q in questions}
+    changed = []
+    for row in data["questions"]:
+        q = byid.get(row["id"])
+        if q is None:
+            continue
+        verdict = answer_verdict(q, row["answer"], row["answerable_got"])
+        if verdict["correct"] != row["correct"]:
+            changed.append({"id": row["id"], "before": row["correct"], "after": verdict["correct"]})
+        row.update(verdict)
+    rows = data["questions"]
+    data["summary"] = {**summarize(rows), "latency_p50_ms": data["summary"]["latency_p50_ms"],
+                       "latency_p95_ms": data["summary"]["latency_p95_ms"]}
+    data["by_category"] = by_group(rows, "category")
+    data["by_format"] = by_group([r for r in rows if r["format"] != "-"], "format")
+    if data.get("judge"):
+        keep = {k: data["judge"][k] for k in ("judge_model", "judge_calls") if k in data["judge"]}
+        data["judge"] = {**keep, **(summarize_judgements(rows) or {})}
+    data.setdefault("regrades", []).append({"at": datetime.now().isoformat(timespec="seconds"), "changed": changed})
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    print(f"Regraded {path}: {len(changed)} verdict(s) changed {changed}; "
+          f"answer accuracy now {fmt(data['summary']['answer_accuracy'])}")
+    return 0
+
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -317,22 +373,40 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ablation", action="store_true", help="Compare retrieval configurations (in-process only)")
     ap.add_argument("--out", default=str(ROOT / "eval" / "results"))
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--judge", action="store_true",
+                    help="Also grade each answer with an LLM judge (faithfulness, relevance, correctness); 1 call per question")
+    ap.add_argument("--judge-model", default=None, help="Judge model (default: the configured answer model)")
+    ap.add_argument("--regrade", action="store_true",
+                    help="Re-apply the (edited) regexes to the answers stored in --out/results-<mode>.json; no model calls")
     args = ap.parse_args(argv)
 
     questions = load_questions(Path(args.questions))
+    if args.regrade:
+        return regrade(questions, Path(args.out) / f"results-{args.mode or 'llm'}.json")
     if args.only:
         wanted = set(args.only.split(","))
         questions = [q for q in questions if q["id"] in wanted]
     client = HttpClient(args.base_url, args.mode) if args.base_url else InProcessClient(args.mode)
+    judge = None
+    if args.judge:
+        from eval.judge import Judge
+        judge = Judge(args.judge_model)
 
     rows = []
+    answer_models: set[str] = set()
     t0 = time.perf_counter()
     for q in questions:
-        res = client.ask(q, q.get("as_of", args.as_of))
+        as_of = q.get("as_of", args.as_of)
+        res = client.ask(q, as_of)
         rows.append(grade(q, res, client))
+        if res.get("model"):
+            answer_models.add(res["model"])
+        if judge is not None:
+            rows[-1].update(judge.grade(q, res, as_of, client.doc_text))
         if not args.quiet:
             mark = "PASS" if rows[-1]["correct"] else "FAIL"
-            print(f"  {mark}  {q['id']:<24} {res['mode']:<10} {res.get('latency_ms', 0):>6} ms", flush=True)
+            jv = f"  judge={rows[-1].get('judge_correctness')}" if judge is not None else ""
+            print(f"  {mark}  {q['id']:<24} {res['mode']:<10} {res.get('latency_ms', 0):>6} ms{jv}", flush=True)
     elapsed = time.perf_counter() - t0
 
     summary = summarize(rows)
@@ -371,18 +445,41 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print("\n== Retrieval ablation (extractive answers, no LLM calls) ==")
             abl = ablation(client, questions, args.as_of)
-            print(f"  {'config':<52} {'hit@1':>6} {'hit@3':>6} {'MRR':>6} {'P@5':>6} {'stale>cur':>9} {'ans acc':>8} {'ms':>6}")
+            print(f"  {'config':<52} {'hit@1':>6} {'hit@3':>6} {'MRR':>6} {'R@5':>6} {'nDCG@5':>6} {'P@5':>6} {'stale>cur':>9} {'ans acc':>8} {'ms':>6}")
             for a in abl:
-                print(f"  {a['config']:<52} {fmt(a['hit@1']):>6} {fmt(a['hit@3']):>6} {fmt(a['mrr']):>6} "
+                print(f"  {a['config']:<52} {fmt(a['hit@1']):>6} {fmt(a['hit@3']):>6} {fmt(a['mrr']):>6} {fmt(a['recall@5']):>6} {fmt(a['ndcg@5']):>6} "
                       f"{fmt(a['precision@5']):>6} {fmt(a['stale_above_current']):>9} "
                       f"{fmt(a['extractive_accuracy']):>8} {a['search_ms_p50']:>6}")
+
+    judge_summary = None
+    if judge is not None:
+        from eval.judge import summarize_judgements
+        judge_summary = summarize_judgements(rows)
+        if judge_summary:
+            judge_summary = {"judge_model": judge.label, "judge_calls": judge.calls, **judge_summary}
+            print(f"\n== LLM judge ({judge.label}, {judge.calls} calls) ==")
+            for k, v in judge_summary.items():
+                if k not in ("disagreements", "judge_model", "judge_calls"):
+                    print(f"  {k:<26} {fmt(v)}")
+            byid = {r["id"]: r for r in rows}
+            if judge_summary["disagreements"]:
+                print("  disagreements with the regex grader (read these by hand):")
+                for i in judge_summary["disagreements"]:
+                    r = byid[i]
+                    print(f"    - {i}: regex={'pass' if r['correct'] else 'fail'}, judge={r['judge_correctness']}: "
+                          f"{r.get('judge_reason', '')[:160]}")
+            unsupported = [(r["id"], c) for r in rows for c in r.get("judge_unsupported", [])]
+            if unsupported:
+                print("  claims the judge found unsupported by the cited text:")
+                for i, c in unsupported:
+                    print(f"    - {i}: {c[:160]}")
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     tag = "-".join(sorted({m.split()[0] for m in modes}))
     payload = {"run_at": datetime.now().isoformat(timespec="seconds"), "as_of": args.as_of, "client": client.label,
                "question_set": Path(args.questions).name, "modes": modes, "summary": summary,
-               "by_category": cats, "by_format": fmts, "ablation": abl, "questions": rows}
+               "by_category": cats, "by_format": fmts, "ablation": abl, "judge": judge_summary, "answer_models": sorted(answer_models), "questions": rows}
     path = out_dir / f"results-{tag}.json"
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"\nWrote {path}")

@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-14T18:39:59",
+  "run_at": "2026-11-15T07:36:20",
   "as_of": "2026-11-14",
   "client": "in-process",
   "question_set": "paraphrase.jsonl",
@@ -13,17 +13,20 @@
     "abstention_accuracy": null,
     "false_abstention_rate": 0.0,
     "citation_support": 1.0,
-    "citation_precision": 0.9354838709677419,
+    "citation_precision": 0.9285714285714286,
     "quote_verified": 1.0,
     "stale_primary_rate": 0.0,
     "hit@1": 0.8333333333333334,
     "hit@3": 0.8333333333333334,
     "hit@5": 0.9166666666666666,
     "mrr": 0.8680555555555555,
-    "precision@5": 0.45,
+    "recall@3": 0.8333333333333334,
+    "recall@5": 0.9166666666666666,
+    "ndcg@5": 0.8692230465061161,
+    "precision@5": 0.43333333333333335,
     "stale_above_current": 0.0,
-    "latency_p50_ms": 4812,
-    "latency_p95_ms": 11084,
+    "latency_p50_ms": 10995,
+    "latency_p95_ms": 22982,
     "llm_calls": 24
   },
   "by_category": {
@@ -51,6 +54,22 @@
     }
   },
   "ablation": null,
+  "judge": {
+    "judge_model": "openai:gpt-5.5",
+    "judge_calls": 12,
+    "judged": 12,
+    "judge_errors": 0,
+    "judge_correct": 1.0,
+    "judge_correct_or_partial": 1.0,
+    "faithfulness": 0.9907407407407408,
+    "answers_fully_faithful": 0.9166666666666666,
+    "relevance": 1.0,
+    "agreement_with_regex": 1.0,
+    "disagreements": []
+  },
+  "answer_models": [
+    "gpt-5.5"
+  ],
   "questions": [
     {
       "id": "p-taxi-airport",
@@ -70,19 +89,35 @@
       "quote_verified": [
         true
       ],
-      "answer": "The handbook does not explicitly say that taxi receipts are reimbursed. For airport trips, it says airport transfers should be booked through VoyageHub, and ride-hailing receipts are reimbursed only when VoyageHub has no option in that city.[1]",
+      "answer": "Airport transfers should be booked through VoyageHub. If VoyageHub has no option in that city, the handbook says ride-hailing receipts are reimbursed; it does not separately state a rule for taxis specifically.[1]",
       "expected": "Airport transfers are booked through VoyageHub; ride-hailing receipts are reimbursed when VoyageHub has no option in that city.",
-      "latency_ms": 11084,
+      "latency_ms": 22982,
       "llm_calls": 2,
       "mode": "llm",
       "format": "docx",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "hr-travel-policy",
+        "fin-reimbursement-sla",
+        "fin-expense-policy",
+        "ref-faq",
+        "fin-corporate-card"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.4
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 2,
+      "judge_reason": "The answer gives the required rule for airport transfers and reimbursement when VoyageHub has no option, matching the reference without contradiction."
     },
     {
       "id": "p-untaken-leave",
@@ -94,35 +129,45 @@
       "missing": [],
       "forbidden_found": [],
       "citations": [
-        "hr-leave-policy-v2",
-        "hr-leave-policy-v2",
         "hr-leave-policy-v2"
       ],
       "citation_ok": [
-        true,
-        true,
         true
       ],
       "quote_verified": [
-        true,
-        true,
         true
       ],
-      "answer": "Under the current Leave Policy v2, up to 8 unused annual leave days can be carried into the next calendar year, but those carried days must be used by March 31 or they lapse.[1] Leave is not paid out unless state law requires it.[2]",
+      "answer": "Up to 8 unused annual leave days can be carried into the next calendar year. Those carried days must be used by March 31 or they lapse, and leave is not paid out unless state law requires it.[1]",
       "expected": "Up to 8 unused days carry into next year and must be used by March 31.",
-      "latency_ms": 4875,
+      "latency_ms": 9006,
       "llm_calls": 2,
       "mode": "llm",
       "format": "pdf",
       "warnings": [],
       "citation_support": true,
       "stale_primary": false,
+      "retrieved_docs": [
+        "hr-leave-policy-v2",
+        "hr-leave-policy-v1",
+        "ref-handbook-index",
+        "hr-probation-policy",
+        "hr-parental-leave-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.8,
-      "stale_above_current": false
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 1.0,
+      "stale_above_current": false,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 3,
+      "judge_reason": "The answer gives the key carry-forward limit and March 31 deadline, with an additional supported payout detail."
     },
     {
       "id": "p-install-apps",
@@ -136,9 +181,11 @@
       "citations": [
         "it-laptop-policy",
         "it-software-licensing",
+        "it-software-licensing",
         "it-software-licensing"
       ],
       "citation_ok": [
+        true,
         true,
         true,
         true
@@ -146,21 +193,41 @@
       "quote_verified": [
         true,
         true,
+        true,
         true
       ],
-      "answer": "Yes, but only from the Self Service catalogue or with an approved exception under the Software Licensing Policy.[1] You must use software only under a licence the company holds, and personal licences may not be used for company work.[2]",
+      "answer": "Yes, but only software from the Self Service catalogue or software with an approved exception under the Software Licensing Policy.[1] The Software Licensing Policy also says company work must use software under a company-held licence, paid tools are requested through the IT portal, and personal licences may not be used for company work.[2]",
       "expected": "Only from the Self Service catalogue or with an approved exception under the Software Licensing Policy.",
-      "latency_ms": 3889,
+      "latency_ms": 8622,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-laptop-policy",
+        "it-software-licensing",
+        "it-vpn-guide",
+        "sec-security-policy",
+        "fin-vendor-policy",
+        "ref-onboarding-checklist",
+        "hr-remote-work-policy",
+        "it-byod-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.6
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 5,
+      "judge_reason": "The answer gives the reference rule exactly and adds supported related licensing details without contradicting it."
     },
     {
       "id": "p-stolen-laptop",
@@ -186,19 +253,38 @@
         true,
         true
       ],
-      "answer": "Tell IT and the Security team within 24 hours so the laptop can be wiped remotely. You should also report the security incident immediately to security@northgate.example and post in #security-incidents, and file a police report because a copy is needed for the insurance claim.[1][2]",
+      "answer": "Tell IT and the Security team immediately, and at least within 24 hours, so the laptop can be wiped remotely.[1] For the Security team, report to security@northgate.example and post in #security-incidents.[2] Because it was theft, file a police report; a copy is needed for the insurance claim.[3]",
       "expected": "IT and the Security team within 24 hours; file a police report.",
-      "latency_ms": 3891,
+      "latency_ms": 11728,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-laptop-policy",
+        "it-byod-policy",
+        "sec-security-policy",
+        "it-password-policy",
+        "it-incident-reporting",
+        "it-vpn-guide"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.6
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.6,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 0.8888888888888888,
+      "judge_unsupported": [
+        "Report the incident immediately to IT."
+      ],
+      "judge_claims": 9,
+      "judge_reason": "The answer gives the key required actions\u2014notify IT and Security within 24 hours and file a police report\u2014with only supported extra reporting details."
     },
     {
       "id": "p-kid-lab",
@@ -212,11 +298,9 @@
       "citations": [
         "office-locations",
         "hr-lab-safety",
-        "hr-lab-safety",
         "hr-lab-safety"
       ],
       "citation_ok": [
-        true,
         true,
         true,
         true
@@ -224,22 +308,38 @@
       "quote_verified": [
         true,
         true,
-        true,
         true
       ],
-      "answer": "The handbook does not mention children specifically, but it does allow guests/visitors subject to the visitor and lab rules: register at reception, keep your kid accompanied in lab areas, and have visitors stay behind the yellow line. In the hardware lab, closed shoes and safety glasses are required at all times, and food and drink must stay outside the lab.[1][2]",
+      "answer": "The handbook does not state a separate rule for children, but it does give rules for visitors/guests in lab areas: visitors must register at reception, be accompanied in lab areas, stay behind the yellow line, wear closed shoes and safety glasses in the hardware lab, and keep food and drink outside the lab.[1][2]",
       "expected": "Visitors stay behind the yellow line and guests must be accompanied in lab areas.",
-      "latency_ms": 7175,
+      "latency_ms": 15928,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "hr-lab-safety",
+        "office-locations",
+        "team-robotics-firmware",
+        "org-chart",
+        "fin-procurement-policy",
+        "fin-vendor-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 1.0
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.8,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 6,
+      "judge_reason": "The answer includes the reference's key requirements that visitors stay behind the yellow line and guests be accompanied in lab areas, with only supported extra details."
     },
     {
       "id": "p-prod-db-access",
@@ -254,7 +354,7 @@
         "it-access-request",
         "it-access-request",
         "sec-security-policy",
-        "team-data"
+        "sec-security-policy"
       ],
       "citation_ok": [
         true,
@@ -268,19 +368,39 @@
         true,
         true
       ],
-      "answer": "Request production database access through the IT portal. The request is routed to the system owner for approval with your manager copied, and production database access also needs Security Lead sign-off; access is reviewed quarterly.[1] You must have a business need and access customer data only through approved systems over the VPN.[2] The Data Team reviews data access requests under the Access Request Process.[3]",
+      "answer": "Request production database access through the IT portal. The request goes to the system owner for approval, your manager is copied, and production database access also needs Security Lead sign-off; standard requests are fulfilled within 48 hours after approval.[1][2] If the access involves customer data, you must have a business need and use approved systems over the VPN.[3] Production access is reviewed quarterly.[4]",
       "expected": "Request it in the IT portal; production database access also needs Security Lead sign-off.",
-      "latency_ms": 5286,
+      "latency_ms": 15765,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-access-request",
+        "eng-db-migration-runbook",
+        "sec-security-policy",
+        "team-data",
+        "ref-handbook-index",
+        "eng-deploy-runbook",
+        "eng-fleet-console-guide",
+        "ref-onboarding-checklist",
+        "eng-disaster-recovery"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 8,
+      "judge_reason": "The answer includes the reference key facts\u2014request through the IT portal and Security Lead sign-off for production database access\u2014and the extra details are supported by the cited evidence."
     },
     {
       "id": "p-friend-hired",
@@ -293,35 +413,50 @@
       "forbidden_found": [],
       "citations": [
         "hr-referral-policy",
-        "hr-referral-policy",
-        "hr-referral-policy",
         "hr-referral-policy"
       ],
       "citation_ok": [
-        true,
-        true,
         true,
         true
       ],
       "quote_verified": [
         true,
-        true,
-        true,
         true
       ],
-      "answer": "If you referred the candidate through the HR portal before they applied, and they are hired into a full-time role and complete 90 days of employment, you receive a $3,000 referral bonus with the next payroll. For intern or contract roles, the bonus is half that amount. Talent Acquisition team members, the hiring manager for the role, and executives are not eligible.",
+      "answer": "If your friend was referred through the HR portal before they applied, and they are hired into a full-time role and complete 90 days of employment, you receive a $3,000 referral bonus with the next payroll.[1] If the role is an intern or contract role, the bonus is half that amount.[2] The bonus is taxable income, and Talent Acquisition team members, hiring managers for the role, and executives are not eligible.[2]",
       "expected": "A $3,000 referral bonus after they complete 90 days.",
-      "latency_ms": 4812,
+      "latency_ms": 11676,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "hr-referral-policy",
+        "fin-expense-policy",
+        "hr-probation-policy",
+        "ref-benefits-overview",
+        "notes-people-2026-06",
+        "hr-grievance-policy",
+        "hr-leave-policy-v2",
+        "ref-onboarding-checklist",
+        "hr-training-policy",
+        "fin-procurement-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 8,
+      "judge_reason": "The answer gives the key reference fact\u2014a $3,000 bonus after 90 days\u2014and the extra conditions are supported by the cited policy."
     },
     {
       "id": "p-complain-manager",
@@ -344,19 +479,42 @@
         true,
         true
       ],
-      "answer": "If you raise a formal grievance in writing to People Operations, you will get an acknowledgement within two working days and a meeting within ten working days.[1] If the complaint is about harassment, the handbook says it is handled separately and confidentially under the Anti-Harassment Policy.[2]",
+      "answer": "If you raise a formal grievance in writing to People Operations, you will receive an acknowledgement within two working days and a meeting within ten working days.[1] If the complaint is a harassment complaint, it is handled separately under the Anti-Harassment Policy, which is referred to but not available here.[2]",
       "expected": "Grievances are acknowledged within two working days, with a meeting within ten.",
-      "latency_ms": 5009,
+      "latency_ms": 10995,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "hr-leave-policy-v2",
+        "hr-parental-leave-policy",
+        "hr-probation-policy",
+        "hr-grievance-policy",
+        "hr-code-of-conduct",
+        "hr-notice-and-exit",
+        "fin-expense-policy",
+        "hr-performance-review",
+        "eng-code-review",
+        "eng-sev-definitions",
+        "hr-travel-booking-guide",
+        "eng-oncall-runbook"
+      ],
       "hit@1": false,
       "hit@3": false,
       "hit@5": true,
       "rr": 0.25,
-      "precision@5": 0.2
+      "recall@3": 0.0,
+      "recall@5": 1.0,
+      "ndcg@5": 0.43067655807339306,
+      "precision@5": 0.2,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 3,
+      "judge_reason": "The answer gives the key grievance response times\u2014acknowledgement within two working days and a meeting within ten working days\u2014matching the reference."
     },
     {
       "id": "p-tech-conference",
@@ -370,9 +528,11 @@
       "citations": [
         "hr-training-policy",
         "fin-approval-matrix",
+        "hr-training-policy",
         "hr-training-policy"
       ],
       "citation_ok": [
+        true,
         true,
         true,
         true
@@ -380,21 +540,42 @@
       "quote_verified": [
         true,
         true,
+        true,
         true
       ],
-      "answer": "Yes. Each employee has an annual $3,000 budget for conferences, courses, certifications and books; conference attendance up to $3,000 is approved by your direct manager.[1][2] If you present at a conference, the ticket cost is refunded back to the budget.[3]",
+      "answer": "Yes. Each employee has an annual $3,000 budget for conferences, courses, certifications and books, and conference attendance up to $3,000 is approved by the direct manager.[1][2] Conference travel follows the Travel Policy, and employees who present at a conference get the ticket cost refunded to the budget.[1]",
       "expected": "Yes, a $3,000 annual budget for conferences, courses, certifications and books.",
-      "latency_ms": 3964,
+      "latency_ms": 7190,
       "llm_calls": 2,
       "mode": "llm",
       "format": "docx",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "hr-training-policy",
+        "fin-approval-matrix",
+        "org-chart",
+        "ref-benefits-overview",
+        "hr-remote-work-policy",
+        "notes-platform-2026-03",
+        "notes-people-2026-06",
+        "fin-expense-policy",
+        "fin-procurement-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.8
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.8,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 5,
+      "judge_reason": "The answer gives the key reference fact of a $3,000 annual budget for conferences, courses, certifications and books, with only supported extra details."
     },
     {
       "id": "p-raises",
@@ -416,17 +597,38 @@
       ],
       "answer": "Compensation changes resulting from the annual performance review cycle apply from July 1.[1]",
       "expected": "Compensation changes from the review cycle apply from July 1.",
-      "latency_ms": 3121,
+      "latency_ms": 8418,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "hr-leave-policy-v2",
+        "hr-grievance-policy",
+        "notes-people-2026-06",
+        "ref-glossary",
+        "notes-allhands-2026-09",
+        "hr-performance-review",
+        "hr-parental-leave-policy-2027",
+        "ref-faq",
+        "ref-handbook-index",
+        "hr-probation-policy"
+      ],
       "hit@1": false,
       "hit@3": false,
       "hit@5": false,
       "rr": 0.16666666666666666,
-      "precision@5": 0.0
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 1,
+      "judge_reason": "The answer states the key fact from the reference that review-cycle compensation changes apply from July 1."
     },
     {
       "id": "p-own-laptop-customer-data",
@@ -451,17 +653,37 @@
       ],
       "answer": "No. Personal laptops may not access customer data.[1] Customer data may be accessed only by people with a business need, through approved systems, over the VPN.[2]",
       "expected": "No. Personal laptops may not access source code, customer data or the fleet console.",
-      "latency_ms": 3447,
+      "latency_ms": 7901,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-byod-policy",
+        "sec-security-policy",
+        "it-laptop-policy",
+        "ref-glossary",
+        "it-access-request",
+        "ref-onboarding-checklist",
+        "it-vpn-guide",
+        "fin-vendor-policy",
+        "it-incident-reporting"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.4
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 2,
+      "judge_reason": "The answer directly states that personal laptops cannot access customer data and adds supported access conditions without contradicting the reference."
     },
     {
       "id": "p-logs-never",
@@ -481,19 +703,43 @@
       "quote_verified": [
         true
       ],
-      "answer": "Never log secrets, tokens, full card numbers, or personal data beyond an opaque user id.[1]",
+      "answer": "Secrets, tokens, full card numbers, and personal data beyond an opaque user id must never be logged.[1]",
       "expected": "Secrets, tokens, full card numbers or personal data beyond an opaque user id.",
-      "latency_ms": 3409,
+      "latency_ms": 6147,
       "llm_calls": 2,
       "mode": "llm",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "eng-logging-standards",
+        "it-data-retention",
+        "eng-api-style-guide",
+        "ref-handbook-index",
+        "sec-security-policy",
+        "eng-oncall-runbook",
+        "it-byod-policy",
+        "it-access-request",
+        "it-password-policy",
+        "it-laptop-policy",
+        "eng-rollback-procedure",
+        "it-incident-reporting",
+        "hr-code-of-conduct"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_correctness": "correct",
+      "judge_relevance": "full",
+      "judge_faithfulness": 1.0,
+      "judge_unsupported": [],
+      "judge_claims": 4,
+      "judge_reason": "The answer exactly matches the in-force logging standard and the reference answer."
     }
   ]
 }

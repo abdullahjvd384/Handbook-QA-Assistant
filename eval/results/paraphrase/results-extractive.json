@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-14T18:32:00",
+  "run_at": "2026-11-15T08:10:32",
   "as_of": "2026-11-14",
   "client": "in-process",
   "question_set": "paraphrase.jsonl",
@@ -20,10 +20,13 @@
     "hit@3": 0.8333333333333334,
     "hit@5": 0.8333333333333334,
     "mrr": 0.8333333333333334,
+    "recall@3": 0.8333333333333334,
+    "recall@5": 0.8333333333333334,
+    "ndcg@5": 0.8333333333333334,
     "precision@5": 0.4166666666666667,
     "stale_above_current": 0.0,
-    "latency_p50_ms": 69,
-    "latency_p95_ms": 127,
+    "latency_p50_ms": 64,
+    "latency_p95_ms": 209,
     "llm_calls": 0
   },
   "by_category": {
@@ -57,10 +60,13 @@
       "hit@3": 0.6666666666666666,
       "hit@5": 0.6666666666666666,
       "mrr": 0.5694444444444444,
+      "recall@3": 0.625,
+      "recall@5": 0.6666666666666666,
+      "ndcg@5": 0.5840120890757922,
       "precision@5": 0.2388888888888889,
       "stale_above_current": 1.0,
       "extractive_accuracy": 0.25,
-      "search_ms_p50": 1.0
+      "search_ms_p50": 0.7
     },
     {
       "config": "BM25 + thesaurus",
@@ -68,10 +74,13 @@
       "hit@3": 0.6666666666666666,
       "hit@5": 0.6666666666666666,
       "mrr": 0.5694444444444444,
+      "recall@3": 0.625,
+      "recall@5": 0.6666666666666666,
+      "ndcg@5": 0.5840120890757922,
       "precision@5": 0.2388888888888889,
       "stale_above_current": 1.0,
       "extractive_accuracy": 0.25,
-      "search_ms_p50": 1.2
+      "search_ms_p50": 0.6
     },
     {
       "config": "BM25 + thesaurus + lifecycle",
@@ -79,10 +88,13 @@
       "hit@3": 0.6666666666666666,
       "hit@5": 0.75,
       "mrr": 0.5861111111111111,
+      "recall@3": 0.625,
+      "recall@5": 0.75,
+      "ndcg@5": 0.616249823012004,
       "precision@5": 0.2388888888888889,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.25,
-      "search_ms_p50": 1.3
+      "search_ms_p50": 0.6
     },
     {
       "config": "Dense only (model2vec)",
@@ -90,10 +102,13 @@
       "hit@3": 0.6666666666666666,
       "hit@5": 0.8333333333333334,
       "mrr": 0.7083333333333334,
+      "recall@3": 0.6666666666666666,
+      "recall@5": 0.8333333333333334,
+      "ndcg@5": 0.7317561587745812,
       "precision@5": 0.2833333333333333,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.25,
-      "search_ms_p50": 2.0
+      "search_ms_p50": 0.8
     },
     {
       "config": "Hybrid RRF (model2vec, w=0.5)",
@@ -101,10 +116,13 @@
       "hit@3": 0.75,
       "hit@5": 0.8333333333333334,
       "mrr": 0.6736111111111112,
+      "recall@3": 0.75,
+      "recall@5": 0.8333333333333334,
+      "ndcg@5": 0.7067772583994198,
       "precision@5": 0.25,
       "stale_above_current": 1.0,
       "extractive_accuracy": 0.25,
-      "search_ms_p50": 1.8
+      "search_ms_p50": 1.1
     },
     {
       "config": "Hybrid + lifecycle (model2vec, w=0.5)",
@@ -112,10 +130,13 @@
       "hit@3": 0.8333333333333334,
       "hit@5": 0.8333333333333334,
       "mrr": 0.6944444444444445,
+      "recall@3": 0.8333333333333334,
+      "recall@5": 0.8333333333333334,
+      "ndcg@5": 0.7234650246909252,
       "precision@5": 0.2833333333333334,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.25,
-      "search_ms_p50": 1.4
+      "search_ms_p50": 0.9
     },
     {
       "config": "Dense only (bge-small)",
@@ -123,10 +144,13 @@
       "hit@3": 0.9166666666666666,
       "hit@5": 1.0,
       "mrr": 0.9375,
+      "recall@3": 0.9166666666666666,
+      "recall@5": 1.0,
+      "ndcg@5": 0.9525563798394495,
       "precision@5": 0.43333333333333335,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.3333333333333333,
-      "search_ms_p50": 35.6
+      "search_ms_p50": 7.4
     },
     {
       "config": "Hybrid RRF (bge-small, w=2.0)",
@@ -134,10 +158,13 @@
       "hit@3": 0.8333333333333334,
       "hit@5": 0.8333333333333334,
       "mrr": 0.7916666666666666,
+      "recall@3": 0.8333333333333334,
+      "recall@5": 0.8333333333333334,
+      "ndcg@5": 0.8025774794642881,
       "precision@5": 0.3666666666666667,
       "stale_above_current": 1.0,
       "extractive_accuracy": 0.3333333333333333,
-      "search_ms_p50": 39.2
+      "search_ms_p50": 8.0
     },
     {
       "config": "Hybrid + lifecycle (bge-small, w=2.0)",
@@ -145,10 +172,13 @@
       "hit@3": 0.8333333333333334,
       "hit@5": 0.8333333333333334,
       "mrr": 0.8333333333333334,
+      "recall@3": 0.8333333333333334,
+      "recall@5": 0.8333333333333334,
+      "ndcg@5": 0.8333333333333334,
       "precision@5": 0.4166666666666667,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.3333333333333333,
-      "search_ms_p50": 37.7
+      "search_ms_p50": 8.1
     },
     {
       "config": "Hybrid + lifecycle (bge-small) + rerank bge-reranker-base",
@@ -156,10 +186,13 @@
       "hit@3": 0.9166666666666666,
       "hit@5": 0.9166666666666666,
       "mrr": 0.9166666666666666,
+      "recall@3": 0.9166666666666666,
+      "recall@5": 0.9166666666666666,
+      "ndcg@5": 0.9166666666666666,
       "precision@5": 0.3,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.3333333333333333,
-      "search_ms_p50": 9507.0
+      "search_ms_p50": 8382.4
     },
     {
       "config": "Hybrid + lifecycle (bge-small) + rerank MiniLM-L6",
@@ -167,12 +200,17 @@
       "hit@3": 0.9166666666666666,
       "hit@5": 0.9166666666666666,
       "mrr": 0.9166666666666666,
+      "recall@3": 0.9166666666666666,
+      "recall@5": 0.9166666666666666,
+      "ndcg@5": 0.9099767324290156,
       "precision@5": 0.35000000000000003,
       "stale_above_current": 0.0,
       "extractive_accuracy": 0.3333333333333333,
-      "search_ms_p50": 1724.4
+      "search_ms_p50": 1467.8
     }
   ],
+  "judge": null,
+  "answer_models": [],
   "questions": [
     {
       "id": "p-taxi-airport",
@@ -190,17 +228,28 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Airport transfers are booked through VoyageHub; ride-hailing receipts are reimbursed when VoyageHub has no option in that city.",
-      "latency_ms": 110,
+      "latency_ms": 209,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "docx",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-travel-policy",
+        "fin-expense-policy",
+        "fin-corporate-card",
+        "fin-reimbursement-sla",
+        "ref-faq"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.6
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.6,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-untaken-leave",
@@ -218,18 +267,27 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Up to 8 unused days carry into next year and must be used by March 31.",
-      "latency_ms": 127,
+      "latency_ms": 145,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "pdf",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-leave-policy-v2",
+        "hr-probation-policy",
+        "hr-parental-leave-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
       "precision@5": 1.0,
-      "stale_above_current": false
+      "stale_above_current": false,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-install-apps",
@@ -247,17 +305,27 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Only from the Self Service catalogue or with an approved exception under the Software Licensing Policy.",
-      "latency_ms": 98,
+      "latency_ms": 115,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "it-laptop-policy",
+        "it-vpn-guide",
+        "it-software-licensing",
+        "hr-remote-work-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-stolen-laptop",
@@ -279,17 +347,28 @@
       ],
       "answer": "According to the Laptop and Hardware Policy (3. Loss or theft): \u201cReport a lost or stolen laptop to IT and the Security team within 24 hours so that it can be wiped remotely. File a police report for theft; a copy is needed for the insurance claim.\u201d [1]",
       "expected": "IT and the Security team within 24 hours; file a police report.",
-      "latency_ms": 99,
+      "latency_ms": 100,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-laptop-policy",
+        "it-password-policy",
+        "it-byod-policy",
+        "it-vpn-guide",
+        "sec-security-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.8
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.8,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-kid-lab",
@@ -307,17 +386,28 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Visitors stay behind the yellow line and guests must be accompanied in lab areas.",
-      "latency_ms": 57,
+      "latency_ms": 64,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-lab-safety",
+        "office-locations",
+        "team-robotics-firmware",
+        "fin-procurement-policy",
+        "org-chart"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.8
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.8,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-prod-db-access",
@@ -339,17 +429,29 @@
       ],
       "answer": "According to the Access Request Process: \u201cProduction database access additionally needs sign-off from the Security Lead and is reviewed every quarter.\u201d [1]",
       "expected": "Request it in the IT portal; production database access also needs Security Lead sign-off.",
-      "latency_ms": 49,
+      "latency_ms": 36,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-access-request",
+        "eng-db-migration-runbook",
+        "team-data",
+        "eng-deploy-runbook",
+        "org-chart",
+        "ref-handbook-index"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-friend-hired",
@@ -367,17 +469,29 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "A $3,000 referral bonus after they complete 90 days.",
-      "latency_ms": 64,
+      "latency_ms": 30,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-referral-policy",
+        "hr-probation-policy",
+        "fin-expense-policy",
+        "hr-grievance-policy",
+        "ref-onboarding-checklist",
+        "fin-procurement-policy"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-complain-manager",
@@ -395,17 +509,30 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Grievances are acknowledged within two working days, with a meeting within ten.",
-      "latency_ms": 117,
+      "latency_ms": 79,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-leave-policy-v2",
+        "hr-parental-leave-policy",
+        "hr-notice-and-exit",
+        "hr-probation-policy",
+        "fin-expense-policy",
+        "hr-performance-review",
+        "hr-travel-booking-guide"
+      ],
       "hit@1": false,
       "hit@3": false,
       "hit@5": false,
       "rr": 0.0,
-      "precision@5": 0.0
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-tech-conference",
@@ -423,17 +550,31 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Yes, a $3,000 annual budget for conferences, courses, certifications and books.",
-      "latency_ms": 44,
+      "latency_ms": 35,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "docx",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-training-policy",
+        "ref-benefits-overview",
+        "fin-approval-matrix",
+        "fin-procurement-policy",
+        "fin-expense-policy",
+        "support-escalation",
+        "notes-people-2026-06",
+        "notes-platform-2026-03"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.6
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.6,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-raises",
@@ -451,17 +592,30 @@
       "quote_verified": [],
       "answer": "I couldn't find an answer to that in the handbook. It may not be covered, or it may be worded differently: try rephrasing, or ask People Operations.",
       "expected": "Compensation changes from the review cycle apply from July 1.",
-      "latency_ms": 58,
+      "latency_ms": 55,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": false,
+      "retrieved_docs": [
+        "hr-leave-policy-v2",
+        "hr-grievance-policy",
+        "ref-glossary",
+        "notes-allhands-2026-09",
+        "hr-parental-leave-policy-2027",
+        "ref-faq",
+        "hr-probation-policy"
+      ],
       "hit@1": false,
       "hit@3": false,
       "hit@5": false,
       "rr": 0.0,
-      "precision@5": 0.0
+      "recall@3": 0.0,
+      "recall@5": 0.0,
+      "ndcg@5": 0.0,
+      "precision@5": 0.0,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-own-laptop-customer-data",
@@ -483,17 +637,27 @@
       ],
       "answer": "According to the Bring Your Own Device Policy: \u201cPersonal laptops may not access source code, customer data or the fleet console. Lost personal devices with company data must be reported under the Security Incident Reporting process.\u201d [1]",
       "expected": "No. Personal laptops may not access source code, customer data or the fleet console.",
-      "latency_ms": 42,
+      "latency_ms": 48,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "it-byod-policy",
+        "sec-security-policy",
+        "it-laptop-policy",
+        "it-vpn-guide"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.4
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.4,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     },
     {
       "id": "p-logs-never",
@@ -518,17 +682,31 @@
       ],
       "answer": "According to the Logging Standards: \u201cNever log secrets, tokens, full card numbers or personal data beyond an opaque user id. Use INFO for business events, WARN for recoverable problems, and ERROR only for failures that need a human.\u201d [1]\n\nAlso relevant, from the Rollback Procedure: \u201cOpen a follow-up ticket to fix forward; a rollback is never the end of the story.\u201d [2]",
       "expected": "Secrets, tokens, full card numbers or personal data beyond an opaque user id.",
-      "latency_ms": 69,
+      "latency_ms": 36,
       "llm_calls": 0,
       "mode": "extractive",
       "format": "md",
       "warnings": [],
       "citation_support": true,
+      "retrieved_docs": [
+        "eng-logging-standards",
+        "ref-handbook-index",
+        "it-data-retention",
+        "eng-oncall-runbook",
+        "eng-api-style-guide",
+        "it-password-policy",
+        "eng-rollback-procedure",
+        "hr-code-of-conduct"
+      ],
       "hit@1": true,
       "hit@3": true,
       "hit@5": true,
       "rr": 1.0,
-      "precision@5": 0.2
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "ndcg@5": 1.0,
+      "precision@5": 0.2,
+      "judge_error": "OpenAI API error 429: Error code: 429 - You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/."
     }
   ]
 }
