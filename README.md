@@ -12,6 +12,8 @@ The handbook mixes Markdown, CSV, plain text, HTML, PDF and Word files. Some doc
 * **Web page:** chat with clickable citations and follow-up questions. The document viewer highlights the cited passage, on the **original PDF page** for PDFs (PDF.js, bundled, works offline) and in the extracted text for every format. Document upload is searchable immediately, with no restart.
 * **Evaluation:** 106 hand-written questions in three sets (dev, held-out, paraphrase), a scoring script with retrieval metrics and an LLM judge, and a retrieval ablation. All results: [eval/RESULTS.md](eval/RESULTS.md).
 
+**Live demo:** https://handbook-qa.lemonwave-97703e6c.centralindia.azurecontainerapps.io (API docs at `/docs`; it may take a few seconds to wake up; 30 questions per hour per visitor). See section 8.
+
 Design choices and results are in [DECISIONS.md](DECISIONS.md). How AI tools were used is in [AI_USAGE.md](AI_USAGE.md).
 
 ---
@@ -54,7 +56,7 @@ Don't commit keys: the app reads them only from the environment or the git-ignor
 ## 2. Run the tests
 
 ```bash
-python -m pytest -q          # 68 tests, about 2-3 min, no API key needed (3 Qdrant tests skip if Docker isn't running)
+python -m pytest -q          # 70 tests, about 2-3 min, no API key needed (3 Qdrant tests skip if Docker isn't running)
 ```
 
 The tests cover:
@@ -292,9 +294,57 @@ The ablation (`--ablation`) compares 11 retrieval configurations: BM25 / dense /
 | `HANDBOOK_RERANK` / `HANDBOOK_RERANK_MODEL` | `0` / `Xenova/ms-marco-MiniLM-L-6-v2` | Cross-encoder re-ranking of the top 20 candidates. Off by default; see DECISIONS.md. |
 | `HANDBOOK_VECTOR_STORE` | `auto` | `auto` (Qdrant if reachable, else memory) / `qdrant` (fail if unavailable) / `memory`. |
 | `QDRANT_URL` / `QDRANT_COLLECTION` | `http://localhost:6333` / `handbook_chunks` | Qdrant location and collection. |
+| `QDRANT_API_KEY` | (unset) | Only for a hosted Qdrant (Qdrant Cloud). |
+| `HANDBOOK_VECTOR_CACHE` | (unset) | In-memory store only: `.npz` file of chunk vectors, keyed by the same content hash as Qdrant. The Docker image fills it at build time. |
+| `HANDBOOK_RATE_LIMIT` | `0` (off) | Questions + uploads per client IP per hour, for a public deployment. Over the limit: `429` with `Retry-After`. |
 | `HANDBOOK_CORPUS_DIR` / `HANDBOOK_UPLOADS_DIR` | `data/corpus` / `data/uploads` | Where documents are read from and uploads are stored. |
 
-## 8. Layout
+## 8. Deploy (Azure Container Apps)
+
+The `Dockerfile` builds a self-contained image (about 870 MB):
+
+* the `bge-small` model is downloaded at build time;
+* every chunk is embedded at build time into `HANDBOOK_VECTOR_CACHE`;
+* vectors are held in memory, with no Qdrant server needed.
+
+A cold start therefore takes about 9 s instead of about 90 s (measured with 1 CPU), and the app uses about 270 MB of RAM. Locally you can still use Qdrant via `docker compose`. The cloud uses the in-memory store because free hosted vector databases pause when idle. With 215 chunks the results are identical (see section 1).
+
+Try the image locally:
+
+```bash
+docker build -t handbook-qa .
+docker run -p 8080:8080 -e OPENAI_API_KEY=sk-... handbook-qa      # http://localhost:8080
+```
+
+The live demo runs on **Azure Container Apps** (region Central India, 0.5 vCPU / 1 GiB, scales to zero). The image is built locally and pushed to Azure Container Registry, because cloud builds are often blocked on student and free subscriptions:
+
+```bash
+az group create -n handbook-qa-rg -l centralindia
+az acr create -n <registry> -g handbook-qa-rg --sku Basic --admin-enabled true
+az acr login -n <registry>
+docker tag handbook-qa <registry>.azurecr.io/handbook-qa:v1
+docker push <registry>.azurecr.io/handbook-qa:v1
+az containerapp env create -n handbook-env -g handbook-qa-rg -l centralindia --logs-destination none
+az containerapp create -n handbook-qa -g handbook-qa-rg --environment handbook-env \
+  --image <registry>.azurecr.io/handbook-qa:v1 --registry-server <registry>.azurecr.io \
+  --registry-username <registry> --registry-password <acr-password> \
+  --ingress external --target-port 8080 --cpu 0.5 --memory 1.0Gi --min-replicas 0 --max-replicas 1 \
+  --secrets openai-key=<sk-...> --env-vars OPENAI_API_KEY=secretref:openai-key \
+  HANDBOOK_OPENAI_MODEL=gpt-5.4-mini HANDBOOK_LLM_EFFORT=low HANDBOOK_RATE_LIMIT=30
+```
+
+To ship a new version: build, push it under a new tag, then run `az containerapp update -n handbook-qa -g handbook-qa-rg --image <registry>.azurecr.io/handbook-qa:<tag>`.
+
+How the deployment controls cost and keeps the key safe:
+
+* The OpenAI key is an Azure secret. It is not in the image or the repo.
+* `--max-replicas 1` caps compute, and `--min-replicas 0` scales to zero when idle. Measured cold start: about 3 s.
+* `HANDBOOK_RATE_LIMIT` caps API spend per visitor. It counts the address the Azure proxy appends to `X-Forwarded-For`, so a forged header can't reset it (tested).
+* The demo uses `gpt-5.4-mini` with low effort to save credits. The evaluation in `eval/RESULTS.md` was measured with `gpt-5.5`.
+
+Uploaded documents live in the container's filesystem and disappear when the app scales to zero or is redeployed.
+
+## 9. Layout
 
 ```
 app/
@@ -312,5 +362,6 @@ eval/                 question sets, run_eval.py (harness), judge.py (LLM judge)
 tests/                pytest suite
 data/corpus/          the handbook as delivered (+ manifest.json)
 data/uploads/         documents uploaded through the UI (persisted across restarts)
-docker-compose.yml    Qdrant vector database
+docker-compose.yml    Qdrant vector database (local)
+Dockerfile            production image (model and chunk vectors baked in), see section 8
 ```

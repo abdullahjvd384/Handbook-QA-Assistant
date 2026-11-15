@@ -14,12 +14,14 @@ import hashlib
 import json
 import logging
 import threading
+import time
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -72,10 +74,38 @@ def _looks_like_text(data: bytes) -> bool:
     return bad <= max(2, len(text) // 100)
 
 
+class RateLimiter:
+    """Sliding one-hour window per client IP, so a public demo can't drain the API budget."""
+
+    def __init__(self, per_hour: int):
+        self.per_hour = per_hour
+        self._hits: dict[str, deque] = defaultdict(deque)
+        self._lock = threading.Lock()
+
+    def __call__(self, request: Request) -> None:
+        if self.per_hour <= 0:
+            return
+        # Behind the hosting proxy the real caller is the LAST X-Forwarded-For entry (the proxy
+        # appends it); earlier entries come from the caller and could be forged to dodge the limit.
+        client = request.headers.get("x-forwarded-for", "").split(",")[-1].strip() or (
+            request.client.host if request.client else "unknown")
+        now = time.monotonic()
+        with self._lock:
+            hits = self._hits[client]
+            while hits and now - hits[0] > 3600:
+                hits.popleft()
+            if len(hits) >= self.per_hour:
+                retry = int(3600 - (now - hits[0])) + 1
+                raise HTTPException(status_code=429, headers={"Retry-After": str(retry)},
+                                    detail=f"Rate limit: {self.per_hour} requests per hour. Try again in {retry // 60 + 1} min.")
+            hits.append(now)
+
+
 def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None = None,
                qa: QAService | None = None) -> FastAPI:
     state: dict = {}
     upload_lock = threading.Lock()
+    limit = Depends(RateLimiter(settings.rate_limit_per_hour))
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -124,14 +154,14 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
             "today": settings.today().isoformat(),
         }
 
-    @app.post("/api/ask")
+    @app.post("/api/ask", dependencies=[limit])
     def ask(req: AskRequest):
         try:
             return _qa().ask(req.question, [t.model_dump() for t in req.history], req.as_of, req.mode, req.top_k)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @app.get("/api/ask")
+    @app.get("/api/ask", dependencies=[limit])
     def ask_get(q: str | None = Query(None, max_length=2000), question: str | None = Query(None, max_length=2000),
                 as_of: date | None = None, mode: Literal["auto", "llm", "extractive"] | None = None):
         """Convenience form for a browser or curl: /api/ask?q=How+many+days+of+annual+leave"""
@@ -167,7 +197,7 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
             raise HTTPException(status_code=404, detail="Original file not available")
         return FileResponse(path, filename=doc.meta.path)
 
-    @app.post("/api/documents", status_code=201)
+    @app.post("/api/documents", status_code=201, dependencies=[limit])
     async def upload_document(
         file: UploadFile = File(...),
         title: str | None = Form(None, max_length=200),

@@ -62,11 +62,16 @@ class Settings:
     vector_store: str = field(default_factory=lambda: os.getenv("HANDBOOK_VECTOR_STORE", "auto").lower())
     qdrant_url: str = field(default_factory=lambda: os.getenv("QDRANT_URL", "http://localhost:6333"))
     qdrant_collection: str = field(default_factory=lambda: os.getenv("QDRANT_COLLECTION", "handbook_chunks"))
+    # In-memory vector store only: .npz cache of chunk vectors (the Docker image fills it at build time).
+    vector_cache: Path | None = field(default_factory=lambda: Path(p) if (p := os.getenv("HANDBOOK_VECTOR_CACHE")) else None)
+    qdrant_api_key: str | None = field(default_factory=lambda: os.getenv("QDRANT_API_KEY") or None)  # Qdrant Cloud
     # Answer generation: "auto" uses the LLM when OPENAI_API_KEY is set, otherwise extractive.
     answer_mode: str = field(default_factory=lambda: os.getenv("HANDBOOK_ANSWER_MODE", "auto"))
     openai_model: str = field(default_factory=lambda: os.getenv("HANDBOOK_OPENAI_MODEL", "gpt-5.5"))
     llm_effort: str = field(default_factory=lambda: os.getenv("HANDBOOK_LLM_EFFORT", "medium"))
     max_upload_bytes: int = 10 * 1024 * 1024
+    # Questions + uploads per client IP per hour on a public deployment; 0 = unlimited.
+    rate_limit_per_hour: int = field(default_factory=lambda: int(os.getenv("HANDBOOK_RATE_LIMIT", "0")))
 
     def today(self) -> date:
         return self.today_override or date.today()

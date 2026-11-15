@@ -8,12 +8,17 @@ Qdrant keeps vectors across restarts. Each point stores a hash of the embedding 
 plus the chunk's indexed text, so `sync` embeds only chunks that are new or changed and
 deletes points whose chunk no longer exists (an edited or removed document). An upload
 therefore embeds only the new document's chunks.
+
+The in-memory index can do the same with a cache file (HANDBOOK_VECTOR_CACHE, an .npz of
+hash -> vector). The Docker image fills it at build time, so a cold start on a small cloud
+CPU reuses the vectors instead of re-embedding every chunk.
 """
 from __future__ import annotations
 
 import hashlib
 import logging
 import uuid
+from pathlib import Path
 
 import numpy as np
 
@@ -31,22 +36,51 @@ def _content_hash(model_name: str, chunk: Chunk) -> str:
 
 
 class MemoryVectorIndex:
-    """Exact search over a NumPy matrix; rebuilt on every sync."""
+    """Exact search over a NumPy matrix, optionally backed by a cache file."""
 
     name = "memory"
 
-    def __init__(self, model, model_name: str):
+    def __init__(self, model, model_name: str, cache_path: Path | None = None):
         self.model = model
         self.model_name = model_name
+        self.cache_path = cache_path
         self._ids: list[str] = []
         self._doc_ids: list[str] = []
         self._matrix = np.zeros((0, 1), dtype=np.float32)
         self.stats: dict = {}
 
+    def _load_cache(self) -> dict[str, np.ndarray]:
+        if self.cache_path is None or not self.cache_path.exists():
+            return {}
+        try:
+            with np.load(self.cache_path) as f:
+                return dict(zip(f["hashes"].tolist(), f["vectors"]))
+        except Exception as exc:  # noqa: BLE001 - a corrupt cache only costs a re-embed
+            log.warning("Ignoring unreadable vector cache %s: %s", self.cache_path, exc)
+            return {}
+
+    def _save_cache(self, hashes: list[str], matrix: np.ndarray) -> None:
+        try:
+            tmp = self.cache_path.with_suffix(".tmp")
+            with open(tmp, "wb") as f:
+                np.savez(f, hashes=np.array(hashes), vectors=matrix)
+            tmp.replace(self.cache_path)
+        except OSError as exc:
+            log.warning("Could not write vector cache %s: %s", self.cache_path, exc)
+
     def sync(self, chunks: list[Chunk]) -> None:
-        matrix = self.model.encode_docs([c.index_text for c in chunks])
+        hashes = [_content_hash(self.model_name, c) for c in chunks]
+        cached = self._load_cache()
+        missing = [i for i, h in enumerate(hashes) if h not in cached]
+        if missing:
+            for i, v in zip(missing, self.model.encode_docs([chunks[i].index_text for i in missing])):
+                cached[hashes[i]] = v
+        matrix = np.stack([cached[h] for h in hashes]) if chunks else np.zeros((0, 1), dtype=np.float32)
+        if missing and self.cache_path is not None:
+            self._save_cache(hashes, matrix)
         self._ids, self._doc_ids, self._matrix = [c.chunk_id for c in chunks], [c.doc_id for c in chunks], matrix
-        self.stats = {"points": len(chunks), "embedded": len(chunks), "reused": 0, "deleted": 0}
+        self.stats = {"points": len(chunks), "embedded": len(missing), "reused": len(chunks) - len(missing),
+                      "deleted": 0}
 
     def search(self, qv: np.ndarray, limit: int, doc_id: str | None = None) -> list[tuple[str, float]]:
         if not self._ids:
@@ -67,14 +101,14 @@ class QdrantVectorIndex:
 
     name = "qdrant"
 
-    def __init__(self, model, model_name: str, url: str, collection: str):
+    def __init__(self, model, model_name: str, url: str, collection: str, api_key: str | None = None):
         from qdrant_client import QdrantClient
 
         self.model = model
         self.model_name = model_name
         self.collection = collection
         self.url = url
-        self.client = QdrantClient(url=url, timeout=10, check_compatibility=False)  # reachability is checked below
+        self.client = QdrantClient(url=url, api_key=api_key, timeout=10, check_compatibility=False)  # reachability is checked below
         self.client.get_collections()                       # fail fast if the server isn't reachable
         self.dim = model.dim
         self._ensure_collection()
@@ -139,14 +173,15 @@ class QdrantVectorIndex:
         return [((p.payload or {}).get("chunk_id", ""), float(p.score)) for p in res.points]
 
 
-def make_vector_index(model, model_name: str, store: str, url: str, collection: str):
+def make_vector_index(model, model_name: str, store: str, url: str, collection: str, api_key: str | None = None,
+                      cache_path: Path | None = None):
     """store: 'qdrant' (required), 'memory', or 'auto' (Qdrant if reachable, else memory)."""
     if store in {"qdrant", "auto"}:
         try:
-            return QdrantVectorIndex(model, model_name, url, collection)
+            return QdrantVectorIndex(model, model_name, url, collection, api_key)
         except Exception as exc:  # noqa: BLE001 - connection refused, timeout, missing package...
             if store == "qdrant":
                 raise RuntimeError(f"Qdrant is required (HANDBOOK_VECTOR_STORE=qdrant) but unavailable at {url}: {exc}") from exc
             log.warning("Qdrant not reachable at %s (%s); using in-memory vectors. Start it with: docker compose up -d",
                         url, type(exc).__name__)
-    return MemoryVectorIndex(model, model_name)
+    return MemoryVectorIndex(model, model_name, cache_path)

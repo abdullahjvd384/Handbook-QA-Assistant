@@ -1,0 +1,10 @@
+.git
+.venv
+.env
+**/__pycache__
+.pytest_cache
+tests
+eval
+data/uploads/*
+!data/uploads/.gitkeep
+*.md

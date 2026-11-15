@@ -61,3 +61,30 @@ def test_upload_embeds_only_the_new_document(qdrant_settings, tmp_path):
     # a reload without the upload deletes its now-stale vectors
     fresh = KnowledgeBase(qdrant_settings).load()
     assert fresh.vector_store_stats["deleted"] == len(kb.snapshot.chunks) - before
+
+
+def test_memory_index_reuses_cached_vectors(kb, tmp_path):
+    """The Docker image embeds at build time; a cold start must reuse, not re-embed."""
+    import numpy as np
+    from dataclasses import replace
+    from app.search.vectors import MemoryVectorIndex
+
+    class CountingModel:
+        dim, calls = 4, 0
+
+        def encode_docs(self, texts):
+            self.calls += len(texts)
+            return np.ones((len(texts), self.dim), dtype=np.float32) / 2
+
+    chunks = kb.snapshot.chunks[:10]
+    cache = tmp_path / "vectors.npz"
+    model = CountingModel()
+    MemoryVectorIndex(model, "m", cache).sync(chunks)
+    assert model.calls == 10 and cache.exists()
+    warm = MemoryVectorIndex(model, "m", cache)
+    warm.sync(chunks)
+    assert model.calls == 10 and warm.stats["reused"] == 10          # nothing re-embedded
+    edited = [replace(chunks[0], index_text=chunks[0].index_text + " (edited)")] + chunks[1:]
+    warm.sync(edited)
+    assert model.calls == 11 and warm.stats["embedded"] == 1          # only the changed chunk
+    assert warm.search(np.ones(4, dtype=np.float32), 3)

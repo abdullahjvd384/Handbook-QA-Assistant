@@ -100,7 +100,8 @@ class KnowledgeBase:
             if self._dense_model is not None:
                 s = self.settings
                 self._vindex = make_vector_index(self._dense_model, s.dense_model, s.vector_store,
-                                                 s.qdrant_url, s.qdrant_collection)
+                                                 s.qdrant_url, s.qdrant_collection, s.qdrant_api_key,
+                                                 s.vector_cache)
         with self._lock:
             self._snap = self._build(docs, report)
         log.info("Indexed %d documents / %d chunks (vectors: %s)", len(docs), len(self._snap.chunks),

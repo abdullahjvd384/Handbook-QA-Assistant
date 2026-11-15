@@ -113,3 +113,22 @@ def test_index_page_served(client):
     r = client.get("/")
     assert r.status_code == 200 and "Handbook Assistant" in r.text
     assert client.get("/static/app.js").status_code == 200
+
+
+def test_rate_limit_per_client(settings, kb, qa):
+    from dataclasses import replace
+    app = create_app(replace(settings, rate_limit_per_hour=2), kb=kb, qa=qa)
+    with TestClient(app) as c:
+        ask = {"question": "How many days of annual leave do I get?"}
+        assert c.post("/api/ask", json=ask).status_code == 200
+        assert c.get("/api/ask", params={"q": ask["question"]}).status_code == 200
+        blocked = c.post("/api/ask", json=ask)
+        assert blocked.status_code == 429 and int(blocked.headers["Retry-After"]) > 0
+        # another client (behind the proxy) has its own budget; health is never limited
+        other = {"X-Forwarded-For": "203.0.113.7"}
+        assert c.post("/api/ask", json=ask, headers=other).status_code == 200
+        assert c.post("/api/ask", json=ask, headers=other).status_code == 200
+        # forging extra addresses in front of the proxy-appended one does not reset the budget
+        forged = {"X-Forwarded-For": "10.0.0.99, 203.0.113.7"}
+        assert c.post("/api/ask", json=ask, headers=forged).status_code == 429
+        assert c.get("/api/health").status_code == 200
