@@ -18,7 +18,7 @@ The handbook mixes Markdown, CSV, plain text, HTML, PDF and Word files. Some doc
 * It is limited to 30 questions per hour per visitor.
 * To save API credits it uses `gpt-5.4-mini`; the results below were measured with `gpt-5.5`. See section 8.
 
-![The chat page: ask a question or pick an example; every answer cites the handbook](docs/screenshot-chat.png)
+![An answer with its citations; clicking [1] opens the original PDF with the quoted sentence highlighted](docs/screenshot-citation.png)
 
 Design choices and results are in [DECISIONS.md](DECISIONS.md). How AI tools were used is in [AI_USAGE.md](AI_USAGE.md).
 
@@ -130,6 +130,8 @@ uvicorn app.api:app --port 8000
 ```
 
 Open <http://localhost:8000>. Ask a question, then click a `[n]` marker or a source card to open the document with the cited passage highlighted.
+
+![The start page: type a question or pick an example](docs/screenshot-chat.png)
 
 * **PDFs** open on the original page, rendered with PDF.js, with the exact quoted characters highlighted. An **Extracted text** tab shows the parsed text.
 * **Other formats** open in the structured text view.
