@@ -18,6 +18,8 @@ The handbook mixes Markdown, CSV, plain text, HTML, PDF and Word files. Some doc
 * It is limited to 30 questions per hour per visitor.
 * To save API credits it uses `gpt-5.4-mini`; the results below were measured with `gpt-5.5`. See section 8.
 
+![The chat page: ask a question or pick an example; every answer cites the handbook](docs/screenshot-chat.png)
+
 Design choices and results are in [DECISIONS.md](DECISIONS.md). How AI tools were used is in [AI_USAGE.md](AI_USAGE.md).
 
 **Contents:** [How it works](#how-it-works) · [Brief checklist](#brief-checklist) · [1. Install](#1-install) · [2. Tests](#2-run-the-tests) · [3. Run it](#3-run-it) · [4. Web app](#4-start-the-web-app) · [5. Question endpoint](#5-question-endpoint-for-external-evaluation) · [6. Evaluation](#6-evaluation) · [7. Configuration](#7-configuration) · [8. Deploy](#8-deploy-azure-container-apps) · [9. Layout](#9-layout) · [10. Known limitations](#10-known-limitations)
@@ -410,6 +412,7 @@ tests/                pytest suite
 data/corpus/          the handbook as delivered (+ manifest.json)
 data/uploads/         documents uploaded through the UI (persisted across restarts)
 docker-compose.yml    Qdrant vector database (local)
+docs/                 screenshots for this README
 Dockerfile            production image (model and chunk vectors baked in), see section 8
 ```
 

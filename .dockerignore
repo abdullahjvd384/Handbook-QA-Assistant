@@ -8,3 +8,4 @@ eval
 data/uploads/*
 !data/uploads/.gitkeep
 *.md
+docs
