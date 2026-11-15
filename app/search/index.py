@@ -30,8 +30,9 @@ from app.ingest.pipeline import (
 from app.models import Chunk, Document, Lifecycle
 from app.search import dense
 from app.search.bm25 import BM25
-from app.search.text import expand_query, strip_question_frame
+from app.search.text import expand_query, strip_question_frame, thesaurus_words
 from app.search.rerank import RERANK_CANDIDATES, get_reranker
+from app.search.spelling import SpellingCorrector
 from app.search.vectors import make_vector_index
 
 log = logging.getLogger(__name__)
@@ -77,6 +78,7 @@ class Snapshot:
     chunk_index: dict[str, int] = field(default_factory=dict)          # chunk_id -> position in `chunks`
     load_report: list[str] = field(default_factory=list)
     missing_refs: dict[str, list[str]] = field(default_factory=dict)   # referenced but absent documents
+    speller: SpellingCorrector | None = None
 
 
 class KnowledgeBase:
@@ -112,7 +114,9 @@ class KnowledgeBase:
         self._lifecycles.cache_clear()
         return Snapshot(docs={d.doc_id: d for d in docs}, chunks=chunks, bm25=BM25(texts),
                         chunk_index={c.chunk_id: i for i, c in enumerate(chunks)},
-                        load_report=report, missing_refs=find_missing_references(docs))
+                        load_report=report, missing_refs=find_missing_references(docs),
+                        speller=SpellingCorrector([d.text for d in docs], tuple(d.meta.title for d in docs),
+                                                  thesaurus_words()))
 
     def _load_uploads(self, report: list[str]) -> list[Document]:
         import json
@@ -169,6 +173,10 @@ class KnowledgeBase:
     def report(self, as_of: date) -> list[str]:
         snap = self.snapshot
         return quality_report(list(snap.docs.values()), self.lifecycles(as_of), snap.load_report)
+
+    def correct_spelling(self, text: str) -> tuple[str, list[tuple[str, str]]]:
+        speller = self.snapshot.speller
+        return speller.correct(text) if speller is not None else (text, [])
 
     def family_members(self, doc_id: str) -> list[str]:
         snap = self.snapshot

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from functools import lru_cache
 
 import snowballstemmer
@@ -56,8 +57,15 @@ def stem(word: str) -> str:
 ANSWER_TYPE_STEMS = frozenset(stem(w) for w in ANSWER_TYPE_WORDS)
 
 
+def fold_accents(text: str) -> str:
+    """"café" -> "cafe", "Zürich" -> "Zurich" (offsets are not needed here: tokens only)."""
+    if text.isascii():
+        return text
+    return "".join(ch for ch in unicodedata.normalize("NFKD", text) if not unicodedata.combining(ch))
+
+
 def normalize(text: str) -> str:
-    text = _NUM_COMMA.sub("", text.lower())
+    text = _NUM_COMMA.sub("", fold_accents(text).lower())
     for pat, rep in _COMPOUNDS:
         text = pat.sub(rep, text)
     return text
@@ -98,6 +106,16 @@ _EXPANSIONS: list[tuple[re.Pattern, str]] = [(re.compile(p, re.I), add) for p, a
     (r"\b(computer|notebook|macbook)\b", "laptop"),
     (r"\b(outage|incident) (level|severity)\b", "sev severity"),
 ]]
+
+
+def thesaurus_words() -> set[str]:
+    """Plain words the thesaurus understands ("vacation", "resign"), so the spelling
+    corrector can fix "vacaton" even though the handbook itself never says "vacation"."""
+    words: set[str] = set()
+    for pat, _ in _EXPANSIONS:
+        plain = re.sub(r"\\[a-zA-Z]|\(\w+\)\?", " ", pat.pattern)   # drop \b and optional suffixes like (ary)?
+        words.update(re.findall(r"[a-z]{4,}", plain))
+    return words
 
 
 def expansions(query: str) -> list[tuple[str, str]]:

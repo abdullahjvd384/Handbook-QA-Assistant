@@ -60,8 +60,11 @@ def test_upload_is_searchable_immediately(client):
     ans = client.post("/api/ask", json={"question": "How much does the company contribute towards a bicycle?"}).json()
     assert ans["citations"][0]["doc_id"] == doc_id
     assert "$750" in ans["answer"]
-    # same title again gets a distinct id rather than overwriting
-    r2 = client.post("/api/documents", files={"file": ("bike-scheme.md", content, "text/markdown")})
+    # the identical file again is refused instead of duplicating every answer's sources
+    dup = client.post("/api/documents", files={"file": ("bike-copy.md", content, "text/markdown")})
+    assert dup.status_code == 409 and doc_id in dup.json()["detail"]
+    # a different file with the same title gets a distinct id rather than overwriting
+    r2 = client.post("/api/documents", files={"file": ("bike-scheme.md", content + b"\nUpdated.\n", "text/markdown")})
     assert r2.status_code == 201 and r2.json()["doc_id"] != doc_id
 
 
@@ -71,6 +74,28 @@ def test_upload_rejects_bad_files(client):
     r = client.post("/api/documents", files={"file": ("a.md", b"# A\n\ntext", "text/markdown")},
                     data={"supersedes": "nope"})
     assert r.status_code == 400
+    # binary data renamed to a text extension, and a corrupt PDF
+    assert client.post("/api/documents", files={"file": ("bin.md", bytes(range(256)) * 4, "text/markdown")}).status_code == 422
+    assert client.post("/api/documents", files={"file": ("bad.pdf", b"%PDF-1.4 garbage", "application/pdf")}).status_code == 422
+    # a corpus file uploaded again
+    with open("data/corpus/eng-sev-definitions.txt", "rb") as f:
+        assert client.post("/api/documents", files={"file": ("copy.txt", f.read(), "text/plain")}).status_code == 409
+    # a path in the file name is ignored
+    r = client.post("/api/documents", files={"file": ("../../evil-path.md", b"# Gym hours\n\nThe gym opens at 6 am.", "text/markdown")})
+    assert r.status_code == 201 and "/" not in r.json()["path"] and ".." not in r.json()["path"]
+
+
+def test_ask_accepts_common_request_shapes(client):
+    """Evaluators may send `query` or `q`, or use GET; all should work."""
+    for body in ({"query": "How many days of annual leave do I get?"}, {"q": "How many days of annual leave do I get?"}):
+        r = client.post("/api/ask", json=body)
+        assert r.status_code == 200 and r.json()["citations"][0]["doc_id"] == "hr-leave-policy-v2"
+    r = client.get("/api/ask", params={"q": "How many days of annual leave do I get?"})
+    assert r.status_code == 200 and r.json()["answerable"]
+    assert client.get("/api/ask").status_code == 422
+    assert client.post("/api/ask", json={"question": "   \n  "}).status_code == 422
+    pre = client.options("/api/ask", headers={"Origin": "http://example.com", "Access-Control-Request-Method": "POST"})
+    assert pre.headers.get("access-control-allow-origin") == "*"
 
 
 def test_upload_superseding_document_changes_lifecycle(client):

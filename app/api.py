@@ -18,10 +18,13 @@ from datetime import date
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+import hashlib
+
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, ValidationError, field_validator
 
 from app.config import Settings, settings as default_settings
 from app.ingest.loaders import SUPPORTED_EXTENSIONS
@@ -40,12 +43,34 @@ class Turn(BaseModel):
 
 
 class AskRequest(BaseModel):
-    question: str = Field(min_length=1, max_length=2000, description="The employee's question.")
+    question: str = Field(min_length=1, max_length=2000, description="The employee's question.",
+                          validation_alias=AliasChoices("question", "query", "q"))
     history: list[Turn] = Field(default_factory=list, max_length=40,
                                 description="Earlier turns, oldest first, for follow-up questions.")
     as_of: date | None = Field(None, description="Answer as of this date (YYYY-MM-DD). Defaults to today.")
     mode: Literal["auto", "llm", "extractive"] | None = Field(None, description="Answer generator; default auto.")
     top_k: int = Field(8, ge=1, le=20, description="Number of passages to retrieve.")
+
+    @field_validator("question")
+    @classmethod
+    def _not_blank(cls, v: str) -> str:
+        v = " ".join(v.split())
+        if not v:
+            raise ValueError("question must not be blank")
+        return v
+
+
+TEXT_FORMATS = {".md", ".markdown", ".txt", ".csv", ".html", ".htm"}
+
+
+def _looks_like_text(data: bytes) -> bool:
+    """Reject binary data uploaded under a text extension (a renamed .exe, an image...)."""
+    sample = data[:65536]
+    if b"\x00" in sample:
+        return False
+    text = sample.decode("utf-8", errors="replace")
+    bad = sum(1 for ch in text if ch == "�" or (ord(ch) < 32 and ch not in "\t\n\r\f"))
+    return bad <= max(2, len(text) // 100)
 
 
 def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None = None,
@@ -61,6 +86,8 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
         yield
 
     app = FastAPI(title="Northgate Handbook Q&A", version="1.0.0", lifespan=lifespan)
+    # Read-only Q&A API with no credentials: allow calls from other origins (evaluation tools, notebooks).
+    app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "POST"], allow_headers=["*"])
 
     def _kb() -> KnowledgeBase:
         return state["kb"]
@@ -96,6 +123,16 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
             return _qa().ask(req.question, [t.model_dump() for t in req.history], req.as_of, req.mode, req.top_k)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/api/ask")
+    def ask_get(q: str | None = Query(None, max_length=2000), question: str | None = Query(None, max_length=2000),
+                as_of: date | None = None, mode: Literal["auto", "llm", "extractive"] | None = None):
+        """Convenience form for a browser or curl: /api/ask?q=How+many+days+of+annual+leave"""
+        try:
+            req = AskRequest(question=q or question or "", as_of=as_of, mode=mode)
+        except ValidationError as exc:
+            raise HTTPException(status_code=422, detail=exc.errors(include_url=False, include_context=False)) from exc
+        return ask(req)
 
     @app.get("/api/documents")
     def list_documents(as_of: date | None = None):
@@ -146,7 +183,15 @@ def create_app(settings: Settings = default_settings, kb: KnowledgeBase | None =
             raise HTTPException(status_code=413, detail="File is larger than 10 MB")
         if not data.strip():
             raise HTTPException(status_code=400, detail="File is empty")
+        if ext in TEXT_FORMATS and not _looks_like_text(data):
+            raise HTTPException(status_code=422, detail=f"This file does not look like a {ext} text file (binary content)")
         k = _kb()
+        digest = hashlib.sha256(data).hexdigest()
+        for d in k.snapshot.docs.values():
+            base = settings.uploads_dir if d.meta.source == "upload" else settings.corpus_dir
+            src = base / d.meta.path
+            if src.exists() and src.stat().st_size == len(data) and hashlib.sha256(src.read_bytes()).hexdigest() == digest:
+                raise HTTPException(status_code=409, detail=f"This file is already in the handbook as {d.doc_id!r} ({d.meta.title})")
         if supersedes and supersedes not in k.snapshot.docs:
             raise HTTPException(status_code=400, detail=f"supersedes refers to unknown document {supersedes!r}")
 

@@ -37,6 +37,8 @@ class FakeMessages:
                                    content=[SimpleNamespace(type="text", text=json.dumps(reply))])
         self.requests.append(kwargs)
         reply = self.replies.pop(0)
+        if isinstance(reply, Exception):
+            raise reply
         if isinstance(reply, SimpleNamespace):
             return reply
         return SimpleNamespace(stop_reason="end_turn",
@@ -104,6 +106,21 @@ def test_refusal_or_error_falls_back(kb, settings):
     res = qa.ask("How many days of annual leave do I get?", as_of=TODAY, mode="llm")
     assert res["mode"] == "extractive (fallback)"
     assert res["citations"]
+
+
+def test_unexpected_client_exception_falls_back(kb, settings):
+    """Not only API errors: any failure inside the provider SDK must degrade, never 500."""
+    qa, _ = make_service(kb, settings, [RuntimeError("connection reset by peer")])
+    res = qa.ask("How many days of annual leave do I get?", as_of=TODAY, mode="llm")
+    assert res["mode"] == "extractive (fallback)" and "16 days" in res["answer"]
+    assert any("connection reset" in w for w in res["warnings"])
+
+
+def test_small_talk_makes_no_model_calls(kb, settings):
+    qa, client = make_service(kb, settings, [])
+    res = qa.ask("Hi there!", as_of=TODAY, mode="llm")
+    assert res["mode"] == "small-talk" and res["llm_calls"] == 0 and not res["citations"]
+    assert not client.messages.requests and not client.messages.plan_requests
 
 
 def test_follow_up_is_rewritten_then_answered(kb, settings):

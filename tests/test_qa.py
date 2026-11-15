@@ -81,3 +81,32 @@ def test_locate_quote_tolerates_formatting_but_not_invention():
     assert locate_quote("Claims above $5,000 are approved by the CFO", text) is None
     s, e = locate_quote("Claims above $2,500 require approval from a Vice-President in addition to your manager", text)
     assert text[s:e].startswith("Claims above")
+
+
+def test_small_talk_gets_a_greeting_not_a_search(qa):
+    for q in ("hi", "Hello!", "what can you do?"):
+        res = ask(qa, q)
+        assert res["mode"] == "small-talk" and not res["answerable"] and "handbook" in res["answer"]
+    assert "welcome" in ask(qa, "thanks!")["answer"]
+    # a greeting followed by a real question is a real question
+    assert ask(qa, "Hi, how many days of annual leave do I get?")["answerable"]
+
+
+def test_typos_are_corrected_for_search(qa):
+    res = ask(qa, "how many vacaton days do i get?")
+    assert {"from": "vacaton", "to": "vacation"} in res["spelling_corrections"]
+    assert res["citations"][0]["doc_id"] == "hr-leave-policy-v2"
+    assert ask(qa, "whats the probaton period?")["citations"][0]["doc_id"] == "hr-probation-policy"
+
+
+def test_spelling_never_rewrites_real_words_or_names(kb):
+    for q in ("Is the London office open on Fridays?", "Can I park my car?", "What is the CEO salary?",
+              "asdfghjkl qwerty"):
+        assert kb.correct_spelling(q) == (q, [])
+    assert kb.correct_spelling("matenity leave")[0] == "maternity leave"
+
+
+def test_accents_are_folded():
+    from app.search.text import tokenize
+    assert tokenize("café Zürich") == tokenize("cafe Zurich")
+
