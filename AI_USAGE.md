@@ -2,49 +2,49 @@
 
 ## Tools I used
 
-* **Claude Code (Claude Opus 5.5) in VS Code**, as a coding agent. It read the corpus, wrote all of the code, ran the tests and the eval, and iterated on the results. I did not hand-edit the code; every change came from my instructions and review.
-* **ChatGPT**, for research. I used it to learn how production RAG systems are usually built: the pipeline stages, normalising parsed documents into one representation, chunking with metadata, which vector database to use, and which retrieval and re-ranking techniques are common. I gave the resulting plan to Claude Code and used it as a checklist to review the build.
+* **Claude Code (Claude Opus 5.5) in VS Code**, as the coding agent. It wrote all of the code, ran the tests and the evals, and iterated on the results. I did not hand-edit code; every change came from my instructions and review.
+* **ChatGPT**, for research: how production RAG systems are built, which vector database to use, and which retrieval, re-ranking and evaluation techniques are standard. I gave that plan to Claude Code and used it as a checklist to review the build.
+* The OpenAI API (`gpt-5.5`) is part of the product, as the answer model and the eval's LLM judge. It was not a development aid.
 
 ## What I used them for
 
-| Task | Tool | How much of the result I kept |
+| Task | Tool | How much of the result I kept, and how it was checked |
 |---|---|---|
-| Reading all 64 documents and cataloguing contradictions, stale versions, missing references and parsing traps | Claude Code | All findings kept (DECISIONS.md section 3); each one checked against the source files |
-| Ingestion parsers for the six formats, lifecycle logic, chunking | Claude Code | Kept after fixes driven by inspecting parsed output (Word table order, PDF list numbers, wrapped PDF headers) |
-| BM25, dense retrieval, RRF fusion, lifecycle re-rank | Claude Code | Kept. The dense weight was set from a measured sweep, not a default |
-| Extractive answerer | Claude Code | Kept after several eval-driven iterations; one idea ("semantic rescue") was removed, see below |
-| LLM answerer (OpenAI and Claude), search planning, JSON schema, quote verification | Claude Code | Kept. Measured with OpenAI gpt-5.5; the first LLM run's failures led to search planning and whole-document passages |
-| Eval questions (dev, held-out, paraphrase) and harness | Claude Code | Kept. The held-out set was written before any tuning |
-| FastAPI backend, chat UI, tests, README, this log | Claude Code | Kept |
-| Research: production RAG architecture, vector databases, retrieval and re-ranking techniques | ChatGPT | Used as a review checklist. Four items were applied: `bge-small` embeddings, a measured cross-encoder re-ranker, `.env.example` plus precision@5, and the original-PDF viewer. Not adopted: fixed-size 600-token chunks with 100-token overlap (structure-aware chunks instead, see DECISIONS.md); pgvector (Qdrant instead, see DECISIONS.md); a React frontend (a vanilla JS page needs no build step for one chat screen) |
-| Qdrant vector database in Docker | Claude Code, at my request | Kept |
-
-"Kept" means kept after my review and the measured eval. Where I wanted something changed, I asked Claude Code to change it rather than editing the code myself.
+| Reading the 64 documents and listing contradictions, stale versions, missing references and parsing traps | Claude Code | All kept (DECISIONS.md section 3). Each one checked against the source file. |
+| Parsers for six formats, lifecycle logic, structure-aware chunking | Claude Code | Kept after fixes found by reading the parsed output (Word table order, PDF lists, wrapped PDF headers). Unit tests guard each fix. |
+| Hybrid search (BM25 + `bge-small` in Qdrant), RRF fusion, lifecycle re-rank, optional cross-encoder | Claude Code | Kept. Every component is justified by an ablation row, not by default. The re-ranker stays off because it measured no better. |
+| LLM answering (OpenAI and Claude), search planning, quote verification | Claude Code | Kept. Invented quotes cannot reach the user (verified offsets), and the first LLM run's failures drove search planning. |
+| Extractive no-key answerer | Claude Code | Kept after eval-driven iterations. One idea was removed (below). |
+| Eval sets (106 questions) and harness | Claude Code | Kept. The held-out set was written before tuning. Regexes were checked against the documents. |
+| Production RAG research: architecture, vector DB, retrieval and evaluation metrics | ChatGPT | Used as a review checklist. Applied: `bge-small`, a measured re-ranker experiment, `.env.example`, precision@5, the original-PDF viewer. Not adopted, with reasons: fixed 600-token chunks with overlap, pgvector, React. |
+| Edge-case audit and hardening | Claude Code, at my request | Kept. Each case was probed through the real API, then turned into a test (README section 5). |
+| Recall@k, nDCG@5 and an LLM-as-judge (faithfulness, relevance, correctness) | Claude Code, at my request | Kept. The judge was checked against planted wrong answers and against the regex grader; every disagreement was read (`eval/RESULTS.md`). |
 
 ## One thing the AI got wrong
 
-**The semantic rescue.** To lift the extractive answerer's weak score on paraphrased questions (25%), the AI added a rule: accept a sentence if its embedding similarity to the question is at least 0.40, even with little word overlap. On the dev and paraphrase sets it looked like a free win: paraphrase accuracy went to 42% with no dev regression.
+**The "semantic rescue".** To lift the no-key answerer on paraphrased questions (25%), the AI added a rule: accept a sentence whose embedding similarity to the question is at least 0.40, even with little word overlap. On dev and paraphrase it looked free: paraphrase accuracy went to 42% with no dev regression.
 
-The final held-out run showed the cost. The unanswerable question "How do I book a meeting room in the Denver office?" was now answered, confidently and with a citation, using an irrelevant Office Locations sentence. Held-out accuracy dropped from 96% to 92%.
+The held-out run showed the cost. The unanswerable "How do I book a meeting room in the Denver office?" was now answered, confidently and with a citation, from an irrelevant Office Locations sentence. Held-out accuracy fell from 96% to 92%. Re-running that question with the rule off confirmed the cause: it abstained. We removed the rule. A cited wrong answer is worse than an honest "not found".
 
-We confirmed the cause by re-running that question with the rule disabled: it abstained, with best word coverage 0.36. We then removed the rule entirely. For a handbook assistant, a wrong answer with a citation is worse than an honest "not found".
-
-**A smaller one:** the first text-extraction script read Word files as "all paragraphs, then all tables". That moved the hotel-rate table from section 4.2 to the end of the Travel Policy, so a "Tier 1 = $275" row would have been chunked without its heading. It was caught by reading the extracted text and fixed by walking the document body in order. A test now guards it (`test_docx_table_stays_in_its_section`).
+**A smaller one, caught by probing the API:** the new spelling corrector turned "matenity leave" into "paternity leave". It read words out of the thesaurus regexes and kept the `\b` prefix, so "maternity" was never in its vocabulary. Fixed, and a test asserts the right correction.
 
 ## What I did without AI
 
-I did not write code by hand. My part was direction, research, testing and decisions:
+I didn't write code by hand. My part was direction, research, testing and decisions:
 
-* **Architecture direction.** I researched with ChatGPT how RAG systems are built in industry, then compared Claude Code's build against that plan. The plan's main requirements are in the final design, checked by me against the code:
-  - Clean and normalise every format into one standard representation.
-  - Chunk by document structure and attach metadata to every chunk.
-  - Store embeddings in a vector database.
-  - Retrieve with hybrid search plus re-ranking.
-  - Let the answer abstain when the evidence is insufficient.
-* **Vector database.** I tested the app in the browser, was not satisfied with the results, and asked for a real vector database instead of in-memory vectors. That became Qdrant in Docker. It re-embeds only new or changed chunks and falls back to memory if Docker is down.
-* **Questioning the design.** I asked for the full query flow to be explained in plain and technical terms. I also challenged why the build did not use the common "fixed-size chunks with overlap" pattern. I accepted structure-aware chunks only after the trade-off was explained: table rows and list items keep their headers, and highlights stay exact.
-* **Choosing improvements.** From the comparison with my research I chose which improvements to build first: better embeddings, a re-ranker experiment, settings plus precision@5, and the PDF viewer. I also accepted the measured result that the re-ranker should stay off by default.
-* **LLM mode.** I decided to run the assistant with a real LLM and supplied the API keys. The Anthropic key was rejected, so the measured LLM results use OpenAI `gpt-5.5`.
-* **Submission.** I decided what goes into the repository (the code, corpus, eval sets and results, but not the brief and templates) and reviewed these documents.
+* **Architecture direction.** I researched with ChatGPT how RAG systems are built, then reviewed Claude Code's build against that plan. Its requirements are all in the final design:
+  - one normalised representation for every format;
+  - structure-aware chunks with metadata;
+  - a vector database;
+  - hybrid retrieval plus re-ranking;
+  - abstaining on weak evidence.
+* **Vector database.** I tested the app in the browser, wasn't satisfied, and asked for a real vector database instead of in-memory vectors. That became Qdrant in Docker.
+* **Questioning the design.** I had the query flow explained to me. I challenged why the build didn't use fixed-size chunks with overlap, and accepted structure-aware chunks once the trade-off was clear.
+* **Choosing what to build next.** I chose:
+  - which improvements came first: embeddings, a re-ranker experiment, the PDF viewer;
+  - that the eval needed recall@k, nDCG and an LLM-as-judge;
+  - that reviewer-style edge cases had to be handled and tested.
+* **LLM mode.** I decided to run with a real LLM and supplied the keys. The Anthropic key was rejected, so measured results use OpenAI `gpt-5.5`.
+* **Submission.** I decided what goes into the repository and reviewed these documents.
 
-**What I did not do myself:** the data problems in DECISIONS.md section 3 were found by Claude Code in its first pass, before my research. That includes the stale and superseded versions handled by the lifecycle logic. So were the eval questions and the bug fixes in section 4. I reviewed them but did not originate them.
+**What I did not originate:** the data problems in DECISIONS.md section 3, including the stale and superseded versions handled by the lifecycle logic, were found by Claude Code in its first pass, before my research. So were the eval questions and the bug fixes in section 4. I reviewed them.
